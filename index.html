@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>SOLD OUT 2 原価計算</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column for phones. Two views (recipes / material prices); a sticky bar keeps the cost in view while editing a recipe. */
+:root {
+  --bg: #eef3f7;
+  --surface: #ffffff;
+  --fg: #17242e;
+  --muted: #5d6f7c;
+  --line: #d6e0e8;
+  --field: #f4f8fb;
+  --accent: #247aa6;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcecf4;
+  --good: #1b7f55;
+  --bad: #c0392b;
+  --font: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f171d; --surface: #172229; --fg: #e6eef3; --muted: #8ea2b0; --line: #263640;
+    --field: #0f1a20; --accent: #6bbfe3; --accent-ink: #0b1a22; --accent-soft: #1d3744; --good: #4cc790; --bad: #ff8f80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f171d; --surface: #172229; --fg: #e6eef3; --muted: #8ea2b0; --line: #263640;
+  --field: #0f1a20; --accent: #6bbfe3; --accent-ink: #0b1a22; --accent-soft: #1d3744; --good: #4cc790; --bad: #ff8f80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); }
+.wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 14px; }
+h1 { font-size: 1.25rem; margin: 18px 0 0; text-wrap: balance; }
+.sub { color: var(--muted); font-size: .85rem; margin: 0; }
+
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--accent-soft); border-radius: 10px; padding: 4px; }
+.tabs button { border: 0; background: transparent; color: var(--fg); border-radius: 7px; padding: 8px 2px; font-weight: 700; }
+.tabs button[aria-pressed="true"] { background: var(--surface); color: var(--accent); }
+
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15;
+  background: var(--accent); color: var(--accent-ink); border-radius: 12px; padding: 10px 14px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+}
+.bar .nm { grid-column: 1 / -1; font-size: .8rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar small { display: block; font-size: .72rem; letter-spacing: .04em; opacity: .85; }
+.bar b { font-size: 1.35rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
+
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+h2 { font-size: .8rem; letter-spacing: .08em; color: var(--muted); margin: 0 0 10px; font-weight: 700; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 7rem 3.4rem; gap: 8px; align-items: center; padding: 5px 0; }
+.row label { min-width: 0; }
+.row .u { color: var(--muted); font-size: .85rem; }
+input, select {
+  width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--fg);
+  background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+input[type="number"] { text-align: right; font-variant-numeric: tabular-nums; }
+input[type="checkbox"] { width: auto; accent-color: var(--accent); }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.note { color: var(--muted); font-size: .8rem; margin: 6px 0 0; }
+
+button { font: inherit; color: var(--accent); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button:disabled { opacity: .4; }
+button.warn { color: var(--bad); border-color: var(--bad); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.add { width: 100%; margin-top: 8px; border-style: dashed; }
+
+.le { border-top: 1px solid var(--line); padding: 10px 0; display: grid; gap: 8px; }
+.le:first-of-type { border-top: 0; padding-top: 0; }
+.l1 { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.l2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.l2 input { width: 6rem; }
+.l2 span { color: var(--muted); font-size: .85rem; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+
+.m { border-top: 1px solid var(--line); padding: 10px 0; display: grid; gap: 8px; }
+.m:first-of-type { border-top: 0; padding-top: 0; }
+.m1 { display: grid; grid-template-columns: minmax(0, 1fr) 7rem; gap: 8px; }
+.m2 { display: flex; align-items: center; gap: 8px; }
+.m2 input { width: 5rem; text-align: left; }
+.m2 span { color: var(--muted); font-size: .85rem; flex: 1; }
+
+.line { display: grid; gap: 4px; padding: 7px 0; border-top: 1px solid var(--line); }
+.line:first-child { border-top: 0; }
+.line .t { display: flex; justify-content: space-between; gap: 8px; }
+.line .t span:last-child, .kv b { font-variant-numeric: tabular-nums; font-weight: 700; }
+.line .d { color: var(--muted); font-size: .8rem; }
+.track { height: 6px; background: var(--accent-soft); border-radius: 3px; overflow: hidden; }
+.track i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); }
+.kv > span { min-width: 0; }
+.kv b { text-align: right; }
+.kv:first-child { border-top: 0; }
+.big { font-size: 1.1rem; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+.hint { color: var(--muted); font-size: .85rem; background: var(--field); border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+.bar[hidden] { display: none; }
+.m3 { display: grid; gap: 6px; }
+.rk { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; width: 100%; text-align: left; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+.rk .nm { font-weight: 700; overflow-wrap: anywhere; }
+.rk .w { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rk .d, .rk .cw { grid-column: 1 / -1; color: var(--muted); font-size: .8rem; }
+.rk .cw { color: var(--bad); }
+.bk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.bk summary { font-weight: 700; color: var(--muted); font-size: .85rem; }
+textarea { width: 100%; font: inherit; font-size: 16px; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>SOLD OUT 2 原価計算</h1>
+    <p class="sub">素材の価格は全レシピで共通です。入力は端末に保存されます。</p>
+  </div>
+  <div class="tabs" role="group" aria-label="表示の切り替え">
+    <button type="button" data-act="view" data-view="recipe" id="tabRecipe">レシピ</button>
+    <button type="button" data-act="view" data-view="mats" id="tabMats">素材</button>
+    <button type="button" data-act="view" data-view="shop" id="tabShop">店舗</button>
+    <button type="button" data-act="view" data-view="cmp" id="tabCmp">比較</button>
+  </div>
+  <div class="bar" id="bar" aria-live="polite">
+    <div class="nm" id="barName"></div>
+    <div><small>原価 / 作業1回</small><b id="barPer">–</b></div>
+    <div><small id="barLabel">原価 / 1個</small><b id="barUnit">–</b></div>
+  </div>
+  <div id="main" class="wrap"></div>
+  <details class="bk">
+    <summary>データのバックアップ</summary>
+    <p class="note">入力した内容を、コピーしてメモなどに保存できます。貼り付けて復元すると、今の内容が置き換わります。</p>
+    <div class="btns"><button type="button" data-act="bkCopy">コピーする</button><button type="button" data-act="bkLoad">貼り付けた内容で復元</button></div>
+    <textarea id="bkText" rows="5" aria-label="バックアップ用のテキスト"></textarea>
+    <p class="note" id="bkMsg"></p>
+  </details>
+</div>
+
+<script>
+(function () {
+  var KEY2 = "cost-calc-v2", KEY1 = "snowflower-calc-v1";
+  var uid = function () { return Math.random().toString(36).slice(2, 8); };
+  var n = function (v) { var x = parseFloat(v); return isFinite(x) && x >= 0 ? x : 0; };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+  var fmt = function (v, d) {
+    d = d === undefined ? 0 : d;
+    if (d > 0 && Math.abs(v - Math.round(v)) < Math.pow(10, -d) / 2) d = 0;
+    return Number(v).toLocaleString("ja-JP", { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  var fq = function (v) { return Number(v).toLocaleString("ja-JP", { maximumFractionDigits: 2 }); };
+  var G = function (v, d) { return fmt(v, d) + "G"; };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function defaults(v1) {
+    var p = (v1 && v1.p) || { ice: 80, bin: 100, stone: 777, staff: 2000 };
+    var q = (v1 && v1.q) || { ice: 50, bin: 10, stone: 5, lic: 1 };
+    var b = (v1 && v1.b) || { broken: 14, ops: 58 };
+    var s = (v1 && v1.s) || { batch: 29, yield: "", sell: "", fee: 0 };
+    var mats = [
+      { id: "ice", name: "氷", unit: "kg", price: p.ice },
+      { id: "bin", name: "ビン", unit: "瓶", price: p.bin },
+      { id: "stone", name: "魔石", unit: "個", price: p.stone },
+      { id: "staff", name: "ミスリルの杖", unit: "本", price: p.staff }
+    ];
+    var rec = {
+      id: uid(), name: "スノーフラワー",
+      lines: [
+        { id: uid(), mat: "ice", qty: q.ice, tool: false },
+        { id: uid(), mat: "bin", qty: q.bin, tool: false },
+        { id: uid(), mat: "stone", qty: q.stone, tool: false },
+        { id: uid(), mat: "staff", tool: true, broken: b.broken, ops: b.ops }
+      ],
+      license: q.lic, batch: s.batch, yield: s.yield, sell: s.sell, fee: s.fee
+    };
+    return { view: "recipe", cur: rec.id, mats: mats, recipes: [rec] };
+  }
+
+  var st;
+  try {
+    var s2 = JSON.parse(localStorage.getItem(KEY2) || "null");
+    if (s2 && Array.isArray(s2.mats) && Array.isArray(s2.recipes) && s2.recipes.length) st = s2;
+    else st = defaults(JSON.parse(localStorage.getItem(KEY1) || "null"));
+  } catch (e) { st = defaults(null); }
+  if (!st.recipes.some(function (r) { return r.id === st.cur; })) st.cur = st.recipes[0].id;
+
+  /* One-time addition of a ready-made recipe; saved data is kept. */
+  st.seeds = st.seeds || [];
+  if (st.seeds.indexOf("fairydust") < 0) {
+    var bin = st.mats.filter(function (m) { return m.id === "bin" || m.name === "ビン"; })[0];
+    if (!bin) { bin = { id: "bin", name: "ビン", unit: "瓶", price: 100 }; st.mats.push(bin); }
+    var fairy = st.mats.filter(function (m) { return m.id === "fairy" || m.name === "気まぐれな妖精"; })[0];
+    if (!fairy) { fairy = { id: "fairy", name: "気まぐれな妖精", unit: "妖精", price: "" }; st.mats.push(fairy); }
+    var fd = {
+      id: uid(), name: "妖精さんの燐粉",
+      lines: [
+        { id: uid(), mat: bin.id, qty: 50, tool: false },
+        { id: uid(), mat: fairy.id, tool: true, broken: 3, ops: 16 }
+      ],
+      license: 10, batch: 1, yield: 11.6, sell: "", fee: 0
+    };
+    st.recipes.push(fd); st.cur = fd.id; st.view = "recipe"; st.seeds.push("fairydust");
+    try { localStorage.setItem(KEY2, JSON.stringify(st)); } catch (e) {}
+  }
+  if (st.seeds.indexOf("ice") < 0) {
+    var water = st.mats.filter(function (m) { return m.id === "water" || m.name === "水"; })[0];
+    if (!water) { water = { id: "water", name: "水", unit: "杯", price: "" }; st.mats.push(water); }
+    var staff2 = st.mats.filter(function (m) { return m.id === "staff" || m.name === "ミスリルの杖"; })[0];
+    if (!staff2) { staff2 = { id: "staff", name: "ミスリルの杖", unit: "本", price: 2000 }; st.mats.push(staff2); }
+    var ic = {
+      id: uid(), name: "氷(錬成)",
+      lines: [
+        { id: uid(), mat: water.id, qty: 10, tool: false },
+        { id: uid(), mat: staff2.id, tool: true, broken: 21, ops: 191 }
+      ],
+      license: 0, batch: 28, yield: "", sell: "", fee: 0
+    };
+    st.recipes.push(ic); st.cur = ic.id; st.view = "recipe"; st.seeds.push("ice");
+    try { localStorage.setItem(KEY2, JSON.stringify(st)); } catch (e) {}
+  }
+
+  /* One-time: fill in the ice recipe's average yield (5,461 kg over 387 works = 14.1 kg per work) if it is still empty. */
+  if (st.seeds.indexOf("iceyield") < 0) {
+    st.recipes.forEach(function (r) {
+      if (r.name === "氷(錬成)" && (r.yield === "" || r.yield === undefined)) r.yield = 14.1;
+    });
+    st.seeds.push("iceyield");
+  }
+
+  /* One-time: water price given by the user (100G per cup) if it is still empty. */
+  if (st.seeds.indexOf("waterprice") < 0) {
+    st.mats.forEach(function (m) {
+      if ((m.id === "water" || m.name === "水") && (m.price === "" || m.price === undefined)) m.price = 100;
+    });
+    st.seeds.push("waterprice");
+  }
+
+  /* Shop effects (sales tax and work speed), from the wiki's shop list. */
+  st.shop = st.shop || { name: "", lv: "", tax: 10, ind: 100, out: 100 };
+  var SPD9 = [100, 100, 101, 103, 105, 107, 109, 111, 113, 115];
+  var SPD15 = { 10: 102, 11: 105, 12: 107, 13: 110, 14: 112, 15: 115 };
+  var TAXSHOP = { 10: 9, 11: 8, 12: 8, 13: 7, 14: 7, 15: 7 };
+  var TAXMKT = { 10: 8, 11: 7, 12: 7, 13: 6, 14: 6, 15: 5 };
+  var PERKSHOP = { 10: 7, 11: 6, 12: 6, 13: 6, 14: 6, 15: 5 };
+  var PERKMKT = { 10: 6, 11: 6, 12: 5, 13: 5, 14: 5, 15: 4 };
+  function S(nm, lo, hi, t, i, o) { return { n: nm, lo: lo, hi: hi, t: t, i: i, o: o }; }
+  var SHOPS = [
+    S("駆け出し店舗", 1, 4, "", "", ""), S("移動販売", 1, 9, "", "", ""),
+    S("蔵", 1, 9, "", "", ""), S("露天商", 1, 9, "9", "", ""), S("作業場", 1, 9, "", "9", ""), S("ベースキャンプ", 1, 9, "", "", "9"), S("運び屋", 1, 9, "", "", ""),
+    S("倉庫", 1, 9, "", "", ""), S("よろず屋", 1, 9, "9", "", ""), S("アトリエ", 1, 9, "", "9", ""), S("山小屋", 1, 9, "", "", "9"), S("便利屋", 1, 9, "", "", ""),
+    S("卸売問屋", 1, 9, "", "", ""), S("テナント", 1, 9, "9", "", ""), S("工房", 1, 9, "", "9", ""), S("ログハウス", 1, 9, "", "", "9"), S("運送屋", 1, 9, "", "", ""),
+    S("ショップ", 10, 15, "s", "15", "15"), S("ファクトリー", 10, 15, "", "15", "15"), S("マーケット", 10, 15, "m", "", "")
+  ];
+  function shopEffect(d, lv, perk) {
+    var tax = d.t === "9" ? (lv >= 7 ? 7 : lv >= 4 ? 8 : lv >= 2 ? 9 : 10) : d.t === "s" ? (TAXSHOP[lv] || 10) : d.t === "m" ? (TAXMKT[lv] || 10) : 10;
+    if (perk) tax = d.t === "9" ? (lv >= 9 ? 5 : lv >= 4 ? 6 : 7) : d.t === "s" ? (PERKSHOP[lv] || 7) : d.t === "m" ? (PERKMKT[lv] || 7) : 7;
+    var spd = function (k) { return (k === "9" ? (SPD9[Math.min(lv, 9)] || 100) : k === "15" ? (SPD15[lv] || 100) : 100) + (perk ? 15 : 0); };
+    return { tax: tax, ind: spd(d.i), out: spd(d.o) };
+  }
+  function applyShop() {
+    var d = SHOPS.filter(function (x) { return x.n === st.shop.name; })[0];
+    if (d) {
+      var lv = Math.min(15, Math.max(1, Number(st.shop.lv) || 1));
+      var e = shopEffect(d, lv, !!st.shop.perk);
+      st.shop.lv = lv; st.shop.tax = e.tax; st.shop.ind = e.ind; st.shop.out = e.out;
+    }
+    save(); renderMain();
+  }
+  function speedOf(r) {
+    var v = r.work === "in" ? n(st.shop.ind) : r.work === "out" ? n(st.shop.out) : 100;
+    return v > 0 ? v : 100;
+  }
+
+  /* One-time: the base sales tax is 10%, so recompute a saved shop (or set 10% when none is chosen). */
+  if (st.seeds.indexOf("tax10") < 0) {
+    var d0 = SHOPS.filter(function (x) { return x.n === st.shop.name; })[0];
+    if (d0) {
+      var e0 = shopEffect(d0, Math.min(15, Math.max(1, Number(st.shop.lv) || 1)));
+      st.shop.tax = e0.tax; st.shop.ind = e0.ind; st.shop.out = e0.out;
+    } else if (n(st.shop.tax) === 0) st.shop.tax = 10;
+    st.seeds.push("tax10");
+  }
+
+  /* One-time: an empty sales tax on a recipe now means "use the shop's tax"; add the work type (the fairy dust recipe is indoor work). */
+  if (st.seeds.indexOf("shop1") < 0) {
+    st.recipes.forEach(function (r) {
+      if (r.fee === 0 || r.fee === "0") r.fee = "";
+      if (r.work === undefined) r.work = r.name === "妖精さんの燐粉" ? "in" : "";
+    });
+    st.seeds.push("shop1");
+  }
+  st.recipes.forEach(function (r) { if (r.work === undefined) r.work = ""; });
+
+  /* Recipes saved before hourly profit existed get a work-time field (the fairy dust recipe takes 1 hour). */
+  st.recipes.forEach(function (r) {
+    if (r.hours === undefined) r.hours = r.name === "妖精さんの燐粉" ? 1 : "";
+  });
+  save();
+
+  function save() { try { localStorage.setItem(KEY2, JSON.stringify(st)); } catch (e) {} }
+  function curRec() { return st.recipes.filter(function (r) { return r.id === st.cur; })[0]; }
+  function matOf(id) { return st.mats.filter(function (m) { return m.id === id; })[0]; }
+  function unitOf(m) { return m && m.unit ? m.unit : "個"; }
+
+  /* ---------- linked costs (make vs buy) ---------- */
+  var visiting = {};
+  function recOf(id) { return st.recipes.filter(function (r) { return r.id === id; })[0]; }
+  function recUnitCost(id) {
+    var r = recOf(id);
+    if (!r || visiting[id]) return null;
+    var y = n(r.yield);
+    if (!(y > 0)) return null;
+    visiting[id] = true;
+    var per = calc(r).per;
+    visiting[id] = false;
+    return per / y;
+  }
+  function priceOf(m) {
+    if (m && m.useMake && m.src) {
+      var u = recUnitCost(m.src);
+      if (u !== null) return u;
+    }
+    return m ? n(m.price) : 0;
+  }
+  function missingPrices(c) {
+    return c.lines.filter(function (x) { return x.m && x.qty > 0 && !(x.price > 0); }).map(function (x) { return x.m.name || "(名前なし)"; });
+  }
+  function summary(r) {
+    var c = calc(r), y = n(r.yield), sell = n(r.sell);
+    var feePct = (r.fee === "" || r.fee === undefined) ? n(st.shop.tax) : n(r.fee);
+    var fee = Math.min(feePct, 99.9) / 100;
+    var h = n(r.hours), eh = h > 0 ? h / (speedOf(r) / 100) : 0;
+    var unit = y > 0 ? c.per / y : null;
+    var profit = (unit !== null && sell > 0) ? sell * (1 - fee) - unit : null;
+    var perRun = profit !== null ? profit * y : null;
+    var wage = (perRun !== null && eh > 0) ? perRun / eh : null;
+    var missing = [];
+    if (!(y > 0)) missing.push("完成数");
+    if (!(sell > 0)) missing.push("売値");
+    if (!(h > 0)) missing.push("作業時間");
+    return { per: c.per, unit: unit, profit: profit, perRun: perRun, wage: wage, missing: missing, noPrice: missingPrices(c) };
+  }
+
+  /* ---------- calculation ---------- */
+  function calc(r) {
+    var lines = r.lines.map(function (l) {
+      var m = matOf(l.mat);
+      var price = m ? priceOf(m) : 0;
+      var rate = null, qty;
+      if (l.tool) { rate = n(l.ops) > 0 ? n(l.broken) / n(l.ops) : 0; qty = rate; }
+      else qty = n(l.qty);
+      return { l: l, m: m, price: price, rate: rate, qty: qty, cost: qty * price };
+    });
+    var per = lines.reduce(function (a, x) { return a + x.cost; }, 0) + n(r.license);
+    return { lines: lines, per: per };
+  }
+
+  /* ---------- views ---------- */
+  function matOptions(sel) {
+    return '<option value="">素材を選ぶ</option>' + st.mats.map(function (m) {
+      return '<option value="' + esc(m.id) + '"' + (m.id === sel ? " selected" : "") + ">" + esc(m.name || "(名前なし)") + "</option>";
+    }).join("");
+  }
+  function numRow(label, id, sc, k, val, unit, extra) {
+    return '<div class="row"><label for="' + id + '">' + label + '</label><input id="' + id + '" type="number" inputmode="decimal" min="0" ' +
+      'data-sc="' + sc + '" data-k="' + k + '" value="' + esc(val) + '" ' + (extra || "") + '><span class="u">' + unit + "</span></div>";
+  }
+
+  function recipeHTML() {
+    var r = curRec();
+    var opts = st.recipes.map(function (x) {
+      return '<option value="' + esc(x.id) + '"' + (x.id === r.id ? " selected" : "") + ">" + esc(x.name || "(名前なし)") + "</option>";
+    }).join("");
+    var lines = r.lines.map(function (l) {
+      var m = matOf(l.mat), u = unitOf(m), p = "l_" + l.id;
+      var body = l.tool
+        ? '<input id="' + p + '_b" type="number" inputmode="numeric" min="0" data-sc="line" data-id="' + l.id + '" data-k="broken" value="' + esc(l.broken) + '" aria-label="壊れた数">' +
+          "<span>" + esc(u) + "壊れた /</span>" +
+          '<input id="' + p + '_o" type="number" inputmode="numeric" min="1" data-sc="line" data-id="' + l.id + '" data-k="ops" value="' + esc(l.ops) + '" aria-label="作業回数">' +
+          "<span>回中</span>"
+        : '<input id="' + p + '_q" type="number" inputmode="decimal" min="0" data-sc="line" data-id="' + l.id + '" data-k="qty" value="' + esc(l.qty) + '" aria-label="使う量">' +
+          "<span>" + esc(u) + " / 作業1回</span>";
+      return '<div class="le"><div class="l1">' +
+        '<select id="' + p + '_m" data-sc="line" data-id="' + l.id + '" data-k="mat" aria-label="素材">' + matOptions(l.mat) + "</select>" +
+        '<button type="button" data-act="rmLine" data-id="' + l.id + '" aria-label="この行を削除">✕</button></div>' +
+        '<div class="l2">' + body + "</div>" +
+        (l.tool ? '<div class="note" data-rate="' + l.id + '"></div>' : "") +
+        '<label class="chk"><input id="' + p + '_t" type="checkbox" data-sc="line" data-id="' + l.id + '" data-k="tool"' + (l.tool ? " checked" : "") + "> 確率で壊れる道具(破損率を実績から出す)</label></div>";
+    }).join("");
+
+    return '<section><h2>レシピ</h2>' +
+      '<select id="recSel" aria-label="レシピを選ぶ">' + opts + "</select>" +
+      '<div class="btns"><button type="button" data-act="newRec">新規</button><button type="button" data-act="dupRec">複製</button>' +
+      '<button type="button" data-act="delRec" id="delRec"' + (st.recipes.length < 2 ? " disabled" : "") + ">削除</button></div>" +
+      '<div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="r_name">商品名</label>' +
+      '<input id="r_name" type="text" data-sc="rec" data-k="name" value="' + esc(r.name) + '"></div></section>' +
+
+      "<section><h2>作業1回で使うもの</h2>" + (lines || '<div class="hint">下のボタンで素材を追加してください。</div>') +
+      '<button type="button" class="add" data-act="addLine">+ 素材を追加</button>' +
+      numRow("ライセンス料", "r_lic", "rec", "license", r.license, "G") + "</section>" +
+
+      '<section><h2>1回あたりの原価</h2><div id="breakdown"></div></section>' +
+
+      "<section><h2>予約の合計</h2>" + numRow("作業回数", "r_batch", "rec", "batch", r.batch, "回", 'inputmode="numeric"') +
+      '<div id="batchOut"></div></section>' +
+
+      "<section><h2>利益を見る</h2>" +
+      numRow("作業1回の完成数", "r_yield", "rec", "yield", r.yield, "個", 'placeholder="例 10"') +
+      '<div class="row"><label for="r_work">作業の種類</label><select id="r_work" data-sc="rec" data-k="work">' +
+        '<option value=""' + (!r.work ? " selected" : "") + '>指定なし</option>' +
+        '<option value="in"' + (r.work === "in" ? " selected" : "") + '>屋内作業</option>' +
+        '<option value="out"' + (r.work === "out" ? " selected" : "") + '>屋外作業</option></select><span class="u"></span></div>' +
+      numRow("作業1回の時間(基本)", "r_hours", "rec", "hours", r.hours, "時間", 'placeholder="例 1"') +
+      numRow("売値", "r_sell", "rec", "sell", r.sell, "G", 'placeholder="例 1200"') +
+      numRow("販売税(空欄なら店舗の値)", "r_fee", "rec", "fee", r.fee, "%", 'placeholder="' + n(st.shop.tax) + '"') +
+      '<div id="profitOut"></div></section>';
+  }
+
+  function cmpText(m) {
+    var r = recOf(m.src);
+    if (!m.src || !r) return "";
+    var u = recUnitCost(m.src), nm = r.name || "(名前なし)";
+    if (u === null) return "自作(" + nm + ")は、完成数と素材の価格を入れると原価が出ます。";
+    var buy = n(m.price), s = "自作 " + G(u, 1) + "/" + unitOf(m);
+    if (buy > 0) {
+      var d = u - buy;
+      s += " ・ 買値 " + G(buy) + (Math.abs(d) < 0.05 ? " → 同じ" : d > 0 ? " → 買うほうが" + G(d, 1) + "安い" : " → 自作のほうが" + G(-d, 1) + "安い");
+    } else s += "(買値を入れると比べられます)";
+    if (m.useMake) s += " ・ 原価計算に使用中";
+    return s;
+  }
+  function matExtra(m) {
+    var p = "m_" + m.id;
+    var opts = '<option value="">自作レシピと比べない</option>' + st.recipes.map(function (r) {
+      return '<option value="' + esc(r.id) + '"' + (r.id === m.src ? " selected" : "") + ">自作: " + esc(r.name || "(名前なし)") + "</option>";
+    }).join("");
+    return '<div class="m3"><select id="' + p + '_s" data-sc="mat" data-id="' + m.id + '" data-k="src" aria-label="自作と比べるレシピ">' + opts + "</select>" +
+      (m.src ? '<label class="chk"><input id="' + p + '_c" type="checkbox" data-sc="mat" data-id="' + m.id + '" data-k="useMake"' + (m.useMake ? " checked" : "") + "> 原価計算には自作の原価を使う</label>" : "") +
+      '<div class="note" data-cmp="' + esc(m.id) + '">' + esc(cmpText(m)) + "</div></div>";
+  }
+  function updateMats() {
+    st.mats.forEach(function (m) {
+      var el = document.querySelector('[data-cmp="' + m.id + '"]');
+      if (el) el.textContent = cmpText(m);
+    });
+  }
+
+  function matsHTML() {
+    var rows = st.mats.map(function (m) {
+      var p = "m_" + m.id;
+      return '<div class="m"><div class="m1">' +
+        '<input id="' + p + '_n" type="text" data-sc="mat" data-id="' + m.id + '" data-k="name" value="' + esc(m.name) + '" placeholder="素材名" aria-label="素材名">' +
+        '<input id="' + p + '_p" type="number" inputmode="decimal" min="0" data-sc="mat" data-id="' + m.id + '" data-k="price" value="' + esc(m.price) + '" placeholder="単価" aria-label="単価(G)"></div>' +
+        '<div class="m2"><input id="' + p + '_u" type="text" data-sc="mat" data-id="' + m.id + '" data-k="unit" value="' + esc(m.unit) + '" placeholder="単位" aria-label="単位">' +
+        "<span>単位あたりの買値(G)</span>" +
+        '<button type="button" data-act="rmMat" data-id="' + m.id + '">削除</button></div>' + matExtra(m) + "</div>";
+    }).join("");
+    return "<section><h2>素材の価格</h2>" + (rows || '<div class="hint">素材がありません。</div>') +
+      '<button type="button" class="add" data-act="addMat">+ 素材を追加</button>' +
+      '<p class="note">ここで価格を変えると、その素材を使う全レシピの原価が変わります。単位は「kg」「瓶」「個」など自由に入れられます。</p></section>';
+  }
+
+  function cmpHTML() {
+    var rows = st.recipes.map(function (r) { return { r: r, s: summary(r) }; });
+    var ready = rows.filter(function (x) { return x.s.wage !== null; }).sort(function (a, b) { return b.s.wage - a.s.wage; });
+    var rest = rows.filter(function (x) { return x.s.wage === null; });
+    var card = function (x) {
+      var s = x.s, nm = esc(x.r.name || "(名前なし)");
+      var warn = s.noPrice.length ? '<span class="cw">価格が未入力の素材: ' + esc(s.noPrice.join("、")) + "(原価が低く出ています)</span>" : "";
+      var head = '<button type="button" class="rk" data-act="openRec" data-id="' + esc(x.r.id) + '"><span class="nm">' + nm + "</span>";
+      if (s.wage !== null) {
+        return head + '<span class="w ' + (s.wage >= 0 ? "pos" : "neg") + '">時給 ' + G(s.wage) + "</span>" +
+          '<span class="d">利益/回 ' + G(s.perRun) + " ・ 原価/個 " + G(s.unit, 1) + " ・ 利益/個 " + G(s.profit, 1) + "</span>" + warn + "</button>";
+      }
+      return head + '<span class="d">未入力: ' + s.missing.join("、") + (s.unit !== null ? " ・ 原価/個 " + G(s.unit, 1) : " ・ 原価/回 " + G(s.per)) + "</span>" + warn + "</button>";
+    };
+    return "<section><h2>時給の高い順</h2>" +
+      (ready.length ? ready.map(card).join("") : '<div class="hint">完成数・作業時間・売値を入れたレシピがまだありません。</div>') +
+      '<p class="note">時給は、作業1回の利益 ÷ 作業時間(店舗の速度を反映)です。同時に動かせる作業枠の数は含みません。タップするとそのレシピを開きます。</p></section>' +
+      (rest.length ? "<section><h2>入力が足りないレシピ</h2>" + rest.map(card).join("") + "</section>" : "");
+  }
+
+  function shopHTML() {
+    var sh = st.shop, d = null;
+    SHOPS.forEach(function (x) { if (x.n === sh.name) d = x; });
+    var names = '<option value="">手入力</option>' + SHOPS.map(function (x) {
+      return '<option value="' + esc(x.n) + '"' + (x.n === sh.name ? " selected" : "") + ">" + esc(x.n) + "</option>";
+    }).join("");
+    var lvs = "";
+    if (d) for (var i = 1; i <= 15; i++) lvs += '<option value="' + i + '"' + (String(i) === String(sh.lv) ? " selected" : "") + ">Lv" + i + "</option>";
+    return "<section><h2>店舗</h2>" +
+      '<div class="row" style="grid-template-columns:minmax(0,1fr) 6rem"><select id="shopSel" aria-label="店舗の種類">' + names + "</select>" +
+      '<select id="shopLv" aria-label="店舗のレベル"' + (d ? "" : " disabled") + ">" + lvs + "</select></div>" +
+      '<label class="chk" style="margin-top:8px"><input id="shopPerk" type="checkbox"' + (sh.perk ? " checked" : "") + (d ? "" : " disabled") + '> 優待特典あり(販売税と作業速度が変わります)</label>' +
+      '<p class="note">店舗とレベルを選ぶと、下の3つの値が自動で入ります。表にない店舗や、値が違う時は、下の値を直接直せます。</p></section>' +
+      "<section><h2>店舗の効果</h2>" +
+      numRow("販売税", "s_tax", "shop", "tax", sh.tax, "%") +
+      numRow("屋内作業の速度", "s_ind", "shop", "ind", sh.ind, "%") +
+      numRow("屋外作業の速度", "s_out", "shop", "out", sh.out, "%") +
+      '<p class="note">速度115%なら、作業時間は基本の時間を1.15で割った長さになります。販売税は、レシピ側で空欄の時にこの値を使います。軌減の記載がない店舗の販売税は10%です。レベルは1〜15から選べます。優待特典ありにすると、販売税が下がり、作業速度が15ポイント上がります。値は公式の店舗性能一覧(mutoys.com/so2/info/shop)を元にしています。</p></section>';
+  }
+
+  var pending = null;
+  function renderMain() {
+    pending = null;
+    var v = ["mats", "shop", "cmp"].indexOf(st.view) >= 0 ? st.view : "recipe";
+    $("tabRecipe").setAttribute("aria-pressed", v === "recipe");
+    $("tabMats").setAttribute("aria-pressed", v === "mats");
+    $("tabShop").setAttribute("aria-pressed", v === "shop");
+    $("tabCmp").setAttribute("aria-pressed", v === "cmp");
+    $("bar").hidden = v !== "recipe";
+    $("main").innerHTML = v === "mats" ? matsHTML() : v === "shop" ? shopHTML() : v === "cmp" ? cmpHTML() : recipeHTML();
+    if (v === "recipe") updateResults();
+  }
+
+  function updateResults() {
+    if (st.view === "mats" || st.view === "shop" || st.view === "cmp") return;
+    var r = curRec(), c = calc(r), noP = missingPrices(c);
+    var items = [];
+    c.lines.forEach(function (x) {
+      var nm = x.m ? (x.m.name || "(名前なし)") : "(素材を選んでください)";
+      var u = unitOf(x.m);
+      items.push({
+        name: nm + (x.l.tool ? "(破損ぶん)" : ""),
+        detail: fq(x.qty) + u + " × " + G(x.price, x.price % 1 ? 1 : 0),
+        v: x.cost
+      });
+    });
+    if (n(r.license) > 0) items.push({ name: "ライセンス料", detail: "", v: n(r.license) });
+
+    $("breakdown").innerHTML = (items.length ? items.map(function (i) {
+      var share = c.per > 0 ? i.v / c.per * 100 : 0;
+      return '<div class="line"><div class="t"><span>' + esc(i.name) + "</span><span>" + G(i.v) + "</span></div>" +
+        '<div class="track"><i style="width:' + share.toFixed(1) + '%"></i></div>' +
+        '<div class="d">' + (i.detail ? esc(i.detail) + " / " : "") + "全体の " + fmt(share, 1) + "%</div></div>";
+    }).join("") : '<div class="hint">素材を追加すると原価が出ます。</div>') +
+      '<div class="kv big"><span>合計</span><b>' + G(c.per) + "</b></div>" +
+      (noP.length ? '<div class="hint">価格が未入力の素材があります: ' + esc(noP.join("、")) + '。「素材」タブで入れると原価が正しくなります。</div>' : "");
+
+    c.lines.forEach(function (x) {
+      if (!x.l.tool) return;
+      var el = document.querySelector('[data-rate="' + x.l.id + '"]');
+      if (el) el.textContent = x.rate <= 1
+        ? "破損率 " + fmt(x.rate * 100, 1) + "%(作業1回あたり " + fq(x.rate) + unitOf(x.m) + "壊れる計算)"
+        : "作業1回あたり " + fq(x.rate) + unitOf(x.m) + "壊れる計算(1回に複数使うので、使う量として計算します)";
+    });
+
+    var batch = n(r.batch);
+    $("batchOut").innerHTML =
+      '<div class="kv big"><span>' + fmt(batch) + "回ぶんの原価</span><b>" + G(c.per * batch) + "</b></div>" +
+      c.lines.filter(function (x) { return x.m; }).map(function (x) {
+        return '<div class="kv"><span>' + esc(x.m.name || "(名前なし)") + (x.l.tool ? "(破損の目安)" : "") + "</span><b>" +
+          fq(x.qty * batch) + unitOf(x.m) + "(" + G(x.cost * batch) + ")</b></div>";
+      }).join("");
+
+    var y = n(r.yield), sell = n(r.sell), feePct = (r.fee === "" || r.fee === undefined) ? n(st.shop.tax) : n(r.fee), fee = Math.min(feePct, 99.9) / 100;
+    var unit = y > 0 ? c.per / y : 0, html = "";
+    if (y > 0) {
+      html += '<div class="kv"><span>原価 / 1個</span><b>' + G(unit, 1) + "</b></div>";
+      html += '<div class="kv"><span>損益分岐の売値</span><b>' + G(Math.ceil(unit / (1 - fee))) + "</b></div>";
+    }
+    if (y > 0 && sell > 0) {
+      var net = sell * (1 - fee), profit = net - unit, margin = net > 0 ? profit / net : 0;
+      var cls = profit >= 0 ? "pos" : "neg";
+      html += '<div class="kv"><span>利益 / 1個</span><b class="' + cls + '">' + G(profit, 1) + "</b></div>";
+      html += '<div class="kv"><span>利益率</span><b class="' + cls + '">' + fmt(margin * 100, 1) + "%</b></div>";
+      html += '<div class="kv"><span>利益 / 作業1回</span><b class="' + cls + '">' + G(profit * y) + "</b></div>";
+      var h = n(r.hours), spd = speedOf(r) / 100, eh = h / spd;
+      if (h > 0) {
+        if (spd !== 1) html += '<div class="kv"><span>実際の作業時間(速度 ' + fmt(spd * 100) + '%)</span><b>' + fq(eh) + '時間</b></div>';
+        html += '<div class="kv big"><span>時給(利益 ÷ 作業時間)</span><b class="' + cls + '">' + G(profit * y / eh) + "</b></div>";
+      } else html += '<div class="hint">作業1回の時間を入れると時給が出ます。</div>';
+      html += '<div class="kv"><span>' + fmt(batch) + '回ぶんの利益</span><b class="' + cls + '">' + G(profit * y * batch) + "</b></div>";
+    } else {
+      html += '<div class="hint">' + (y > 0 ? "売値を入れると利益が出ます。" : "作業1回で何個できるかと売値を入れると、1個あたりの原価と利益が出ます。") + "</div>";
+    }
+    $("profitOut").innerHTML = html;
+
+    $("barName").textContent = r.name || "(名前なし)";
+    $("barPer").textContent = G(c.per);
+    $("barLabel").textContent = y > 0 ? "原価 / 1個" : "原価 / 1個(完成数を入力)";
+    $("barUnit").textContent = y > 0 ? G(unit, 1) : "–";
+    var o = document.querySelector("#recSel option:checked");
+    if (o) o.textContent = r.name || "(名前なし)";
+  }
+
+  /* ---------- events ---------- */
+  function target(el) {
+    var sc = el.dataset.sc;
+    if (sc === "shop") return st.shop;
+    if (sc === "mat") return matOf(el.dataset.id);
+    if (sc === "rec") return curRec();
+    if (sc === "line") return curRec().lines.filter(function (l) { return l.id === el.dataset.id; })[0];
+  }
+  document.addEventListener("input", function (e) {
+    var el = e.target;
+    if (!el.dataset || !el.dataset.sc || el.tagName === "SELECT" || el.type === "checkbox") return;
+    var o = target(el);
+    if (!o) return;
+    o[el.dataset.k] = el.value;
+    save();
+    if (st.view === "mats") updateMats(); else updateResults();
+  });
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el.id === "recSel") { st.cur = el.value; save(); renderMain(); return; }
+    if (el.id === "shopSel") { st.shop.name = el.value; st.shop.lv = ""; applyShop(); return; }
+    if (el.id === "shopLv") { st.shop.lv = el.value; applyShop(); return; }
+    if (el.id === "shopPerk") { st.shop.perk = el.checked; applyShop(); return; }
+    if (!el.dataset || !el.dataset.sc || !(el.tagName === "SELECT" || el.type === "checkbox")) return;
+    var o = target(el);
+    if (!o) return;
+    o[el.dataset.k] = el.type === "checkbox" ? el.checked : el.value;
+    save(); renderMain();
+  });
+
+  var timer = null;
+  function twice(btn, key, label, go, msg) {
+    if (pending === key) { clearTimeout(timer); pending = null; btn.textContent = label; btn.classList.remove("warn"); go(); return; }
+    pending = key; btn.textContent = msg || "もう一度タップで削除"; btn.classList.add("warn");
+    clearTimeout(timer);
+    timer = setTimeout(function () { pending = null; btn.textContent = label; btn.classList.remove("warn"); }, 3000);
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b) return;
+    var act = b.dataset.act, id = b.dataset.id, r = curRec();
+    if (act === "view") { st.view = b.dataset.view; save(); renderMain(); }
+    else if (act === "newRec") {
+      var nr = { id: uid(), name: "新しいレシピ", lines: [], license: 0, batch: 1, yield: "", hours: "", work: "", sell: "", fee: "" };
+      st.recipes.push(nr); st.cur = nr.id; save(); renderMain();
+      var f = $("r_name"); if (f) { f.focus(); f.select(); }
+    }
+    else if (act === "dupRec") {
+      var cp = clone(r); cp.id = uid(); cp.name = (r.name || "レシピ") + "のコピー";
+      cp.lines.forEach(function (l) { l.id = uid(); });
+      st.recipes.push(cp); st.cur = cp.id; save(); renderMain();
+    }
+    else if (act === "delRec") {
+      if (st.recipes.length < 2) return;
+      twice(b, "rec", "削除", function () {
+        st.recipes = st.recipes.filter(function (x) { return x.id !== r.id; });
+        st.cur = st.recipes[0].id; save(); renderMain();
+      });
+    }
+    else if (act === "addLine") {
+      r.lines.push({ id: uid(), mat: "", qty: "", tool: false, broken: "", ops: "" }); save(); renderMain();
+    }
+    else if (act === "rmLine") {
+      r.lines = r.lines.filter(function (l) { return l.id !== id; }); save(); renderMain();
+    }
+    else if (act === "addMat") {
+      var nm = { id: uid(), name: "", unit: "", price: "" };
+      st.mats.push(nm); save(); renderMain();
+      var f2 = $("m_" + nm.id + "_n"); if (f2) f2.focus();
+    }
+    else if (act === "openRec") { st.cur = id; st.view = "recipe"; save(); renderMain(); window.scrollTo(0, 0); }
+    else if (act === "bkCopy") backupCopy();
+    else if (act === "bkLoad") twice(b, "restore", "貼り付けた内容で復元", backupLoad, "もう一度タップで復元");
+    else if (act === "rmMat") {
+      twice(b, "mat" + id, "削除", function () {
+        st.mats = st.mats.filter(function (m) { return m.id !== id; });
+        st.recipes.forEach(function (rc) { rc.lines.forEach(function (l) { if (l.mat === id) l.mat = ""; }); });
+        save(); renderMain();
+      });
+    }
+  });
+
+  function bkMsg(t) { $("bkMsg").textContent = t; }
+  function backupCopy() {
+    var txt = JSON.stringify(st), ta = $("bkText");
+    ta.value = txt;
+    var done = function () { bkMsg("コピーしました。メモなどに貼り付けて保存してください。"); };
+    var fail = function () { ta.focus(); ta.select(); bkMsg("上のテキストを選択しました。コピーして保存してください。"); };
+    try { navigator.clipboard.writeText(txt).then(done, fail); } catch (e) { fail(); }
+  }
+  function backupLoad() {
+    var data;
+    try { data = JSON.parse($("bkText").value); } catch (e) { bkMsg("貼り付けた内容を読み取れませんでした。コピーした内容をそのまま貼り付けてください。"); return; }
+    if (!data || !Array.isArray(data.mats) || !Array.isArray(data.recipes) || !data.recipes.length) { bkMsg("バックアップの内容ではないようです。"); return; }
+    data.seeds = Array.isArray(data.seeds) ? data.seeds : st.seeds.slice();
+    data.shop = data.shop || { name: "", lv: "", tax: 10, ind: 100, out: 100 };
+    data.view = "recipe";
+    if (!data.recipes.some(function (x) { return x.id === data.cur; })) data.cur = data.recipes[0].id;
+    st = data; save(); renderMain(); bkMsg("復元しました。");
+  }
+
+  renderMain();
+})();
+</script>
+</body>
+</html>
