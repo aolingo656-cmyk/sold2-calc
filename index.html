@@ -136,6 +136,24 @@ button.warn { color: var(--bad); border-color: var(--bad); }
 @media (prefers-reduced-motion: reduce) { .menu, .menu.on, .scrim, .scrim.on { transition: none; } }
 .menu .mh { display: flex; align-items: center; justify-content: space-between; font-weight: 700; padding: 2px 2px 4px; }
 .menu .mh button { padding: 4px 12px; }
+.tg { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 8px; animation: tgp 1.4s ease-in-out infinite; position: relative; z-index: 5; }
+.bar.tg { position: sticky; }
+@keyframes tgp { 50% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) { .tg { animation: none; } }
+.tcard { position: fixed; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom, 0px)); margin: 0 auto; max-width: 520px; z-index: 80; background: var(--surface); color: var(--fg); border: 1px solid var(--accent); border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 30px rgba(0, 0, 0, .3); }
+.tcard[hidden] { display: none; }
+.tcard.top { bottom: auto; top: 8px; padding: 8px 12px; }
+.tcard.top .tp { display: none; }
+.tcard.top .tx { font-size: .8rem; margin-bottom: 4px; }
+.tcard.top .tn button { padding-top: 4px; padding-bottom: 4px; }
+.tcard .tp { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; margin-bottom: 4px; }
+.tcard .tt { font-weight: 700; margin-bottom: 2px; }
+.tcard .tx { font-size: .9rem; margin: 0 0 8px; }
+.tcard .tok { color: var(--good); font-weight: 700; font-size: .85rem; margin-bottom: 6px; }
+.tcard .tn { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tcard .tn .pri { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; padding: 7px 16px; }
+.tcard .skip { border: 0; padding: 4px 0; color: var(--muted); font-size: .85rem; text-decoration: underline; }
+body.tuton { padding-bottom: 230px; }
 .cf { display: grid; grid-template-columns: minmax(0, 1fr) 9.5rem; gap: 8px; margin-bottom: 8px; }
 .cg { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 8px 12px; font-weight: 700; color: var(--fg); background: var(--accent-soft); border: 0; border-radius: 10px; }
 .cg span:last-child { color: var(--muted); font-weight: 400; font-size: .85rem; }
@@ -157,6 +175,7 @@ button.warn { color: var(--bad); border-color: var(--bad); }
 .bk summary { font-weight: 700; color: var(--muted); font-size: .85rem; }
 textarea { width: 100%; font: inherit; font-size: 16px; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 textarea[hidden] { display: none; }
+#shPrev[hidden] { display: none; }
 textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 </style>
 
@@ -175,9 +194,19 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     <button type="button" data-act="view" data-view="cmp" id="tabCmp">比較</button>
   </div>
   <div class="scrim" id="scrim" data-act="menuClose"></div>
+  <div class="tcard" id="tcard" role="region" aria-live="polite" aria-label="チュートリアル" hidden></div>
   <nav class="menu" id="menu" aria-label="メニュー" aria-hidden="true" inert>
     <div class="mh"><span>メニュー</span><button type="button" data-act="menuClose">閉じる</button></div>
+    <button type="button" class="go" data-act="tutStart">使い方を見る(チュートリアル)</button>
     <details class="bk" id="shopDet"><summary id="shopSum">店舗の設定</summary><div class="in" id="shopBox"></div></details>
+  <details class="bk" id="shareDet">
+    <summary>レシピの共有</summary>
+    <p class="note">いま開いているレシピの「素材・量・原価」を、文章としてコピーできます。LINEなどで送ると、相手は貼り付けて自分のレシピに取り込めます。売値や、あなたの店舗の設定は含まれません。</p>
+    <div class="btns"><button type="button" data-act="shCopy">今のレシピをコピー</button><button type="button" data-act="shLoad">もらったレシピを取り込む</button></div>
+    <textarea id="shText" rows="5" aria-label="共有されたレシピの文章" hidden></textarea>
+    <p class="note" id="shMsg"></p>
+    <div id="shPrev" class="hint pv" hidden></div>
+  </details>
   <details class="bk">
     <summary>データのバックアップ</summary>
     <p class="note">「コピーする」を押すと、入力した内容が一度でコピーされます。メモなどに貼り付けて保存してください。復元するときは、コピーしたバックアップを持った状態で「復元」を押します。クリップボードから自動で読み取って復元します(今の内容は置き換わります)。</p>
@@ -215,8 +244,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   var G = function (v, d) { return fmt(v, d) + "G"; };
   var $ = function (id) { return document.getElementById(id); };
 
-  var VERSION = "1.2.0";
+  var VERSION = "1.3.0";
   var CHANGES = [
+    { v: "1.3.0", d: "2026-10-27", t: ["レシピの素材・量・原価を、文章にしてコピーして他の人に送れるようになりました(メニュー「レシピの共有」、またはレシピ画面の「共有」)", "もらった文章を貼り付けると、内容を確認してから自分のレシピに取り込めます。素材は市場に自動で追加され、同じ名前の素材は自分の買値が使われます","売値から逆算して、素材を何Gまでで買えばよいか(買取価格の目安)を調べられるようになりました","はじめての人向けのチュートリアルを追加(メニューの「使い方を見る」からいつでも見られます)"] },
     { v: "1.2.0", d: "2026-10-27", t: [
       "画面右上のメニューに、店舗の設定・データのバックアップ・更新情報をまとめました",
       "「素材」タブを「市場」に変更。ゲームと同じカテゴリ別に表示し、検索・絞り込み・折りたたみに対応",
@@ -342,7 +372,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   });
   save();
 
-  function save() { try { localStorage.setItem(KEY2, JSON.stringify(st)); } catch (e) {} }
+  function save() { if (tutMode) return; try { localStorage.setItem(KEY2, JSON.stringify(st)); } catch (e) {} }
   function curRec() { return st.recipes.filter(function (r) { return r.id === st.cur; })[0]; }
   function matOf(id) { return st.mats.filter(function (m) { return m.id === id; })[0]; }
   function unitOf(m) { return m && m.unit ? m.unit : "個"; }
@@ -377,6 +407,54 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   }
   function missingPrices(c) {
     return c.lines.filter(function (x) { return x.m && x.qty > 0 && !(x.price > 0); }).map(function (x) { return x.m.name || "(名前なし)"; });
+  }
+  var BUYT = [["even", "赤字にならない上限(損益分岐)"], ["profit", "1個あたりの利益を確保"], ["margin", "利益率を確保"], ["wage", "時給を確保"]];
+  function buyMat(r) {
+    var ids = [];
+    r.lines.forEach(function (l) { if (l.mat && matOf(l.mat) && ids.indexOf(l.mat) < 0) ids.push(l.mat); });
+    return { ids: ids, cur: ids.indexOf(r.bm) >= 0 ? r.bm : (ids[0] || "") };
+  }
+  function buyFormHTML(r) {
+    var bm = buyMat(r), t = r.bt || "even";
+    if (!bm.ids.length) return '<div class="hint">素材を追加すると、その素材を何Gまでで買えば目標の利益になるかを計算できます。売値は上の「利益を見る」に入れた値を使います。</div>';
+    var mo = bm.ids.map(function (id) { var m = matOf(id); return '<option value="' + esc(id) + '"' + (id === bm.cur ? " selected" : "") + ">" + esc(m.name || "(名前なし)") + "</option>"; }).join("");
+    var to = BUYT.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === t ? " selected" : "") + ">" + x[1] + "</option>"; }).join("");
+    var unitTxt = t === "profit" ? "G" : t === "margin" ? "%" : t === "wage" ? "G/時間" : "";
+    return '<div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="r_bm">素材</label><select id="r_bm" data-sc="rec" data-k="bm">' + mo + "</select></div>" +
+      '<div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="r_bt">目標</label><select id="r_bt" data-sc="rec" data-k="bt">' + to + "</select></div>" +
+      (t === "even" ? "" : numRow("目標の値", "r_bv", "rec", "bv", r.bv === undefined ? "" : r.bv, unitTxt, 'placeholder="例 50"'));
+  }
+  function buyHTML(r) {
+    var bm = buyMat(r); if (!bm.ids.length) return "";
+    var c = calc(r), y = yieldOf(r), sell = n(r.sell), t = r.bt || "even", v = n(r.bv);
+    if (!(y > 0) || !(sell > 0)) return '<div class="hint">完成数と売値を入れると、買取価格の目安が出ます。</div>';
+    var feePct = (r.fee === "" || r.fee === undefined) ? n(st.shop.tax) : n(r.fee), fee = Math.min(feePct, 99.9) / 100;
+    var net = sell * (1 - fee), T = 0;
+    if (t === "profit") T = v;
+    else if (t === "margin") T = net * v / 100;
+    else if (t === "wage") {
+      var h = n(r.hours), eh = h / (speedOf(r) / 100);
+      if (!(h > 0)) return '<div class="hint">時給で調べるには、作業1回の時間を入れてください。</div>';
+      T = v * eh / y;
+    }
+    var m = matOf(bm.cur), qty = 0, mine = 0;
+    c.lines.forEach(function (x) { if (x.l.mat === bm.cur) { qty += x.qty; mine += x.cost; } });
+    if (!(qty > 0)) return '<div class="hint">この素材の量を入れてください。</div>';
+    var others = c.per - mine, budget = y * (net - T) - others, maxP = budget / qty, u = unitOf(m), now = priceOf(m);
+    var nm = esc(m.name || "(名前なし)"), html = "";
+    if (maxP < 0) {
+      html = '<div class="hint">他の費用(' + G(others) + ")だけで、目標に届きません。売値か目標を見直してください。</div>";
+    } else {
+      var fl = Math.floor(maxP * 10) / 10;
+      html = '<div class="kv big"><span>' + nm + "の買取上限</span><b>" + G(fl, 1) + "/" + esc(u) + "</b></div>" +
+        '<div class="kv"><span>作業1回ぶんの上限(' + fq(qty) + esc(u) + ")</span><b>" + G(Math.floor(budget)) + "</b></div>";
+      if (now > 0) {
+        var d = fl - now;
+        html += '<div class="kv"><span>今の価格 ' + G(now, 1) + "/" + esc(u) + "</span><b class=\"" + (d >= 0 ? "pos" : "neg") + '">' + (d >= 0 ? "上限まで " + G(d, 1) + " 余裕" : G(-d, 1) + " 高い") + "</b></div>";
+      }
+      html += '<p class="note">売値 ' + G(sell) + "(販売税 " + fmt(feePct, 1) + "%)・他の素材とライセンス料は今の設定のまま、この素材だけを変えた場合の上限です。</p>";
+    }
+    return html;
   }
   function summary(r) {
     var c = calc(r), y = yieldOf(r), sell = n(r.sell);
@@ -446,7 +524,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
 
     return '<section><h2>レシピ</h2>' +
       '<select id="recSel" aria-label="レシピを選ぶ">' + opts + "</select>" +
-      '<div class="btns"><button type="button" data-act="newRec">新規</button><button type="button" data-act="dupRec">複製</button>' +
+      '<div class="btns"><button type="button" data-act="newRec">新規</button><button type="button" data-act="dupRec">複製</button><button type="button" data-act="shCopy">共有</button>' +
       '<button type="button" data-act="delRec" id="delRec"' + (st.recipes.length < 2 ? " disabled" : "") + ">削除</button></div>" +
       '<div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="r_name">商品名</label>' +
       '<input id="r_name" type="text" data-sc="rec" data-k="name" value="' + esc(r.name) + '"></div>' +
@@ -477,7 +555,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       '<div class="btns" style="margin:2px 0 6px"><button type="button" data-act="setHours" data-h="0.5">簡単 30分</button><button type="button" data-act="setHours" data-h="1">一般的 1時間</button><button type="button" data-act="setHours" data-h="2">難しい 2時間</button><button type="button" data-act="setHours" data-h="4">熟練者でも難しい 4時間</button></div>' +
       numRow("売値", "r_sell", "rec", "sell", r.sell, "G", 'placeholder="例 1200"') +
       numRow("販売税(空欄なら店舗の値)", "r_fee", "rec", "fee", r.fee, "%", 'placeholder="' + n(st.shop.tax) + '"') +
-      '<div id="profitOut"></div></section>';
+      '<div id="profitOut"></div></section>' +
+
+      "<section><h2>素材の買取価格の目安</h2>" + buyFormHTML(r) + '<div id="buyOut"></div></section>';
   }
 
   function cmpText(m) {
@@ -507,7 +587,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     });
   }
 
-  var matQ = "", matCat = "", openM = {}, newM = [];
+  var matQ = "", matCat = "", openM = {}, newM = [], sortMsg = "";
   function matRow(m) {
     var p = "m_" + m.id, open = !!openM[m.id];
     var cs = '<option value="">未分類</option>' + CATS.map(function (c) { return '<option value="' + c + '"' + (m.cat === c ? " selected" : "") + ">" + c + "</option>"; }).join("");
@@ -525,7 +605,8 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   function matListHTML() {
     var q = normName(matQ), shown = 0, html = "";
     var fresh = st.mats.filter(function (m) { return newM.indexOf(m.id) >= 0; });
-    if (fresh.length) html += '<div class="cg" style="margin-top:4px"><span>追加した素材</span><span>' + fresh.length + "件</span></div>" + fresh.map(matRow).join("");
+    if (sortMsg) html += '<div class="hint">' + esc(sortMsg) + "</div>";
+    if (fresh.length) html += '<div class="cg" style="margin-top:4px"><span>新しい素材(' + fresh.length + '件)</span><button type="button" data-act="sortNew" style="padding:4px 10px;font-weight:400">カテゴリに振り分ける</button></div>' + fresh.map(matRow).join("");
     var list = st.mats.filter(function (m) {
       if (newM.indexOf(m.id) >= 0) return false;
       var c = CATS.indexOf(m.cat) >= 0 ? m.cat : "";
@@ -535,7 +616,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     CATS.concat([""]).forEach(function (c) {
       var ms = list.filter(function (m) { return (CATS.indexOf(m.cat) >= 0 ? m.cat : "") === c; });
       if (!ms.length) return;
-      var closed = !q && !matCat && st.catClosed && st.catClosed[c || "_none"];
+      var closed = !q && !matCat && !(st.catOpen && st.catOpen[c || "_none"]);
       shown += ms.length;
       html += '<button type="button" class="cg" data-act="catTog" data-c="' + (c || "_none") + '" aria-expanded="' + !closed + '"><span>' + (closed ? "▸ " : "▾ ") + (c || "未分類") + "</span><span>" + ms.length + "件</span></button>" +
         (closed ? "" : ms.map(matRow).join(""));
@@ -598,6 +679,36 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
 
   var pending = null;
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
+  /* swipe the drawer to the right to close it */
+  (function () {
+    var sx = 0, sy = 0, dx = 0, drag = false, lock = "", t0 = 0, mn = null;
+    var reset = function () { mn.style.transition = ""; mn.style.transform = ""; };
+    document.addEventListener("touchstart", function (e) {
+      mn = $("menu");
+      if (!mn.classList.contains("on") || !mn.contains(e.target) || e.touches.length !== 1) { drag = false; return; }
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; drag = true; lock = ""; t0 = Date.now();
+    }, { passive: true });
+    document.addEventListener("touchmove", function (e) {
+      if (!drag) return;
+      var x = e.touches[0].clientX - sx, y = e.touches[0].clientY - sy;
+      if (!lock) {
+        if (Math.abs(x) < 8 && Math.abs(y) < 8) return;
+        lock = Math.abs(x) > Math.abs(y) * 1.2 && x > 0 ? "h" : "v";
+      }
+      if (lock !== "h") return;
+      dx = Math.max(0, x);
+      mn.style.transition = "none"; mn.style.transform = "translateX(" + dx + "px)";
+    }, { passive: true });
+    var end = function () {
+      if (!drag) return; drag = false;
+      if (lock !== "h") return;
+      var fast = dx / Math.max(1, Date.now() - t0) > 0.5;
+      reset();
+      if (dx > 70 || (fast && dx > 24)) setMenu(false);
+    };
+    document.addEventListener("touchend", end);
+    document.addEventListener("touchcancel", end);
+  })();
   function setMenu(open) {
     $("menu").classList.toggle("on", open);
     $("scrim").classList.toggle("on", open);
@@ -608,7 +719,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   }
   function renderMain() {
     pending = null;
-    if (st.view !== "mats") newM = [];
+    if (st.view !== "mats") { newM = []; sortMsg = ""; }
     var v = ["mats", "cmp"].indexOf(st.view) >= 0 ? st.view : "recipe";
     $("tabRecipe").setAttribute("aria-pressed", v === "recipe");
     $("tabMats").setAttribute("aria-pressed", v === "mats");
@@ -684,6 +795,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       html += '<div class="hint">' + (y > 0 ? "売値を入れると利益が出ます。" : "作業1回で何個できるかと売値を入れると、1個あたりの原価と利益が出ます。") + "</div>";
     }
     $("profitOut").innerHTML = html;
+    $("buyOut").innerHTML = buyHTML(r);
 
     $("barName").textContent = (r.name || "(名前なし)") + (r.kind === "official" ? " ・ 公式品" : r.kind === "recipe" ? " ・ レシピ品" : "");
     $("barPer").textContent = G(c.per);
@@ -708,7 +820,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     var o = target(el);
     if (!o) return;
     o[el.dataset.k] = el.value;
-    if (el.dataset.sc === "mat" && el.dataset.k === "name" && (!o.cat || o.catAuto)) { var cc = catOf(el.value); o.cat = cc; o.catAuto = !!cc; }
+    if (el.dataset.sc === "mat" && el.dataset.k === "name" && (!o.cat || o.catAuto)) { var cc = catOf(el.value); o.cat = cc; o.catAuto = !!cc; var cs2 = $("m_" + o.id + "_c2"); if (cs2) cs2.value = cc; }
     if (el.dataset.sc === "rec" && el.dataset.k === "name") {
       var off = isOfficial(el.value);
       if (off && !o.kind) { o.kind = "official"; o.kindAuto = true; }
@@ -776,19 +888,37 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     }
     else if (act === "addMat") {
       var nm = { id: uid(), name: "", unit: "", price: "", cat: CATS.indexOf(matCat) >= 0 ? matCat : "", catAuto: false };
-      st.mats.push(nm); openM[nm.id] = true; newM.push(nm.id); matQ = ""; save(); renderMain();
+      st.mats.push(nm); openM[nm.id] = true; newM.push(nm.id); matQ = ""; sortMsg = ""; save(); renderMain();
       var f2 = $("m_" + nm.id + "_n"); if (f2) f2.focus();
     }
     else if (act === "setHours") { r.hours = Number(b.dataset.h); save(); renderMain(); }
     else if (act === "openRec") { st.cur = id; st.view = "recipe"; save(); renderMain(); window.scrollTo(0, 0); }
     else if (act === "updOpen") { setMenu(true); $("updDetails").open = true; markSeen(); $("updDetails").scrollIntoView({ block: "center" }); }
     else if (act === "updClose") markSeen();
+    else if (act === "tutStart") tutStart();
+    else if (act === "tutNext") { tutI = Math.min(TUT.length - 1, tutI + 1); tutRender(); }
+    else if (act === "tutEnd") tutEnd();
+    else if (act === "shCopy") shareCopy();
+    else if (act === "shLoad") shareLoad();
+    else if (act === "shGo") shareGo();
+    else if (act === "shNo") { shStaged = null; $("shPrev").hidden = true; shMsg("取り込みをやめました。"); }
     else if (act === "bkCopy") backupCopy();
     else if (act === "bkLoad") backupLoad();
     else if (act === "bkGo") restoreGo();
     else if (act === "bkNo") { staged = null; $("bkPrev").hidden = true; bkMsg("復元をやめました。"); }
+    else if (act === "sortNew") {
+      var cnt = {}, ms = newM.map(matOf).filter(Boolean);
+      st.catOpen = st.catOpen || {};
+      ms.forEach(function (m) {
+        if (!m.cat || m.catAuto) { var cc = catOf(m.name); m.cat = cc; m.catAuto = !!cc; }
+        var key = CATS.indexOf(m.cat) >= 0 ? m.cat : "未分類";
+        cnt[key] = (cnt[key] || 0) + 1; st.catOpen[key === "未分類" ? "_none" : key] = true;
+      });
+      sortMsg = ms.length ? ms.length + "件を振り分けました(" + Object.keys(cnt).map(function (k) { return k + " " + cnt[k] + "件"; }).join("・") + ")。" : "";
+      newM = []; openM = {}; save(); $("matList").innerHTML = matListHTML();
+    }
     else if (act === "matTog") { openM[id] = !openM[id]; $("matList").innerHTML = matListHTML(); }
-    else if (act === "catTog") { var ck = b.dataset.c; st.catClosed = st.catClosed || {}; st.catClosed[ck] = !st.catClosed[ck]; save(); $("matList").innerHTML = matListHTML(); }
+    else if (act === "catTog") { var ck = b.dataset.c; st.catOpen = st.catOpen || {}; st.catOpen[ck] = !st.catOpen[ck]; save(); $("matList").innerHTML = matListHTML(); }
     else if (act === "rmMat") {
       twice(b, "mat" + id, "削除", function () {
         st.mats = st.mats.filter(function (m) { return m.id !== id; });
@@ -809,6 +939,192 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     $("updBanner").hidden = st.seenVer === VERSION;
     $("updDetails").addEventListener("toggle", function () { if ($("updDetails").open && st.seenVer !== VERSION) markSeen(); });
   }
+
+  /* ---------- interactive tutorial (runs on a throw-away sample, never touches the saved data) ---------- */
+  var tutMode = false, realSt = null, tutI = 0, tutTimer = null, tutLast = null, tutBase = null;
+  function tutSample() {
+    var r = { id: uid(), name: "れんしゅう", kind: "", lines: [], license: 0, batch: 1, total: "", hours: "", work: "", sell: "", fee: "" };
+    return { view: "recipe", cur: r.id, recipes: [r], mats: [
+      { id: "t1", name: "氷", unit: "kg", price: 80, cat: "原料", catAuto: true },
+      { id: "t2", name: "ビン", unit: "瓶", price: 100, cat: "原料", catAuto: true }
+    ], seeds: st.seeds.slice(), shop: { name: "", lv: "", tax: 10, ind: 100, out: 100 }, seenVer: VERSION, catOpen: { "原料": true } };
+  }
+  var TUT = [
+    { t: "れんしゅうを始めましょう", x: "練習用のデータで、実際に触りながら覚えます。あなたのデータは変わりません。終わると元に戻ります。" },
+    { sel: "#tabMats", t: "① 「市場」タブを開く", x: "素材の買値を入れる画面です。光っている「市場」を押してください。", ok: function () { return st.view === "mats"; } },
+    { sel: "#matList .mr input[data-k=price]", t: "② 買値を変えてみる", x: "氷の買値を、好きな数字に変えてみてください。ここを変えると、その素材を使うすべてのレシピの原価が変わります。", ok: function () { var m = matOf("t1"); return !!m && n(m.price) !== 80; } },
+    { sel: "[data-act=addMat]", t: "③ 素材を追加する", x: "「+ 素材を追加」を押してください。", ok: function () { return st.mats.length > 2; } },
+    { sel: "#matList .mr input[data-k=name]", t: "④ 名前を入れる", x: "名前に「砂」と入れてみましょう。ゲームにある公式アイテムの名前なら、カテゴリが自動で入ります。", ok: function () { return st.mats.some(function (m) { return m.id !== "t1" && m.id !== "t2" && m.cat && m.catAuto; }); } },
+    { sel: "[data-act=sortNew]", t: "⑤ カテゴリに振り分ける", x: "「カテゴリに振り分ける」を押すと、新しい素材がカテゴリごとに整理されます。", ok: function () { return newM.length === 0; } },
+    { sel: "#tabRecipe", t: "⑥ 「レシピ」タブを開く", x: "作るものを入れる画面です。「レシピ」を押してください。", ok: function () { return st.view === "recipe"; } },
+    { sel: "[data-act=addLine]", t: "⑦ 使う素材を追加する", x: "「+ 素材を追加」を押してください。", ok: function () { return curRec().lines.length > 0; } },
+    { sel: ".le", t: "⑧ 素材と量を入れる", x: "素材を選んで、作業1回に使う量を入れてください(例: 氷 10)。", ok: function () { return curRec().lines.some(function (l) { return l.mat && n(l.qty) > 0; }); } },
+    { sel: "#r_total", t: "⑨ 完成数を入れる", x: "予約履歴の、完成数の合計を入れます(例: 12)。1回あたりの数は自動で計算されます。", ok: function () { return n(curRec().total) > 0; } },
+    { sel: "#r_sell", t: "⑩ 売値を入れる", x: "売値を入れてください(例: 200)。", ok: function () { return n(curRec().sell) > 0; } },
+    { sel: "#r_hours", t: "⑪ 作業時間を入れる", x: "作業1回の時間を入れます(例: 1)。下の難易度ボタンでも選べます。", ok: function () { return n(curRec().hours) > 0; } },
+    { sel: "#profitOut", t: "⑫ 結果を見る", x: "上のバーに原価、下の「利益を見る」に利益・利益率・時給が出ています。数字を変えると、すぐ反映されます。" },
+    { sel: "#menuBtn", t: "⑬ メニューを開く", x: "右上の三本線を押してください。", ok: function () { return $("menu").classList.contains("on"); } },
+    { sel: "#shopSum", t: "⑭ 店舗の設定", x: "「店舗の設定」を押すと、店舗の種類とレベルを選べます。選ぶと販売税と作業速度が決まり、利益と時給に反映されます。ほかに、レシピの共有、バックアップ、使い方の見直しもここにあります。", ok: function () { return $("shopDet").open; } },
+    { t: "おつかれさまでした!", x: "「おわる」を押すと、練習用のデータを消して、あなたのデータに戻ります。この練習は、メニューの「使い方を見る」からいつでも見直せます。" }
+  ];
+  /* while a field is being typed in, move the card to the top so the on-screen keyboard never hides it */
+  var tutTopT = null;
+  function tutPlace() {
+    var c = $("tcard"); if (!c) return;
+    if (c.classList.contains("top")) {
+      var vv = window.visualViewport;
+      c.style.top = ((vv ? vv.offsetTop : 0) + 8) + "px";
+    } else c.style.top = "";
+  }
+  document.addEventListener("focusin", function (e) {
+    if (!tutMode) return;
+    var t = e.target;
+    if (!t || !t.tagName || !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || $("tcard").contains(t)) return;
+    clearTimeout(tutTopT); $("tcard").classList.add("top"); tutPlace();
+  });
+  document.addEventListener("focusout", function () {
+    if (!tutMode) return;
+    clearTimeout(tutTopT);
+    tutTopT = setTimeout(function () {
+      var a = document.activeElement;
+      if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && !$("tcard").contains(a)) return;
+      $("tcard").classList.remove("top"); tutPlace();
+    }, 250);
+  });
+  if (window.visualViewport) { window.visualViewport.addEventListener("resize", tutPlace); window.visualViewport.addEventListener("scroll", tutPlace); }
+  function tutStart() {
+    if (tutMode) return;
+    realSt = st; st = tutSample(); tutMode = true; tutI = 0; tutLast = null;
+    matQ = ""; matCat = ""; openM = {}; newM = []; sortMsg = "";
+    setMenu(false); renderMain(); window.scrollTo(0, 0);
+    document.body.classList.add("tuton");
+    tutRender(); $("tcard").hidden = false;
+    clearInterval(tutTimer); tutTimer = setInterval(tutTick, 300);
+  }
+  function tutEnd() {
+    clearInterval(tutTimer); tutTimer = null;
+    var tg = document.querySelector(".tg"); if (tg) tg.classList.remove("tg");
+    $("tcard").hidden = true; $("tcard").classList.remove("top"); $("tcard").style.top = ""; document.body.classList.remove("tuton");
+    if (tutMode) { st = realSt; realSt = null; tutMode = false; }
+    matQ = ""; matCat = ""; openM = {}; newM = []; sortMsg = "";
+    setMenu(false);
+    if (!st.tutDone) st.tutDone = true;
+    save(); renderMain(); window.scrollTo(0, 0);
+  }
+  function tutRender() {
+    var s = TUT[tutI], last = tutI === TUT.length - 1, first = tutI === 0;
+    $("tcard").innerHTML = '<div class="tp"><span>れんしゅう中(あなたのデータは変わりません)</span><span>' + (tutI + 1) + " / " + TUT.length + "</span></div>" +
+      '<div class="tt">' + s.t + '</div><p class="tx">' + s.x + '</p><div class="tok" id="tutOk" hidden>✓ できました</div>' +
+      '<div class="tn">' + (last ? "<span></span>" : '<button type="button" class="skip" data-act="tutEnd">やめる</button>') +
+      '<button type="button" id="tutGo" class="' + ((first || last || !s.ok) ? "pri" : "") + '" data-act="' + (last ? "tutEnd" : "tutNext") + '">' + (last ? "おわる" : first ? "はじめる" : s.ok ? "飛ばす" : "次へ") + "</button></div>";
+    tutLast = null; tutTick();
+  }
+  function tutTick() {
+    if (!tutMode) return;
+    var s = TUT[tutI], t = s.sel ? document.querySelector(s.sel) : null;
+    if (t && t.offsetParent === null && t.id !== "bar") t = null;
+    var cur = document.querySelector(".tg");
+    if (cur && cur !== t) cur.classList.remove("tg");
+    if (t && !t.classList.contains("tg")) t.classList.add("tg");
+    if (t && t !== tutLast) { tutLast = t; try { t.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { /* ignore */ } }
+    var done = !!(s.ok && s.ok()), okEl = $("tutOk"), go = $("tutGo");
+    if (okEl) okEl.hidden = !done;
+    if (go && s.ok && tutI < TUT.length - 1) { go.className = done ? "pri" : ""; go.textContent = done ? "次へ" : "飛ばす"; }
+  }
+
+  /* ---------- recipe sharing ---------- */
+  function b64e(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function b64d(t) { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; return JSON.parse(decodeURIComponent(escape(atob(t)))); }
+  function shMsg(t) { $("shMsg").textContent = t; }
+  function kindName(k) { return k === "official" ? "公式品" : k === "recipe" ? "レシピ品" : ""; }
+  function shareText(r) {
+    var c = calc(r), y = yieldOf(r), mi = [], mats = [];
+    var idx = function (m) {
+      var k = mi.indexOf(m.id); if (k >= 0) return k;
+      mi.push(m.id); mats.push({ n: m.name, u: m.unit || "", p: n(m.price) }); return mi.length - 1;
+    };
+    var ls = [], out = ["【SOLD OUT 2 原価計算 レシピ共有】", (r.name || "(名前なし)") + (kindName(r.kind) ? "(" + kindName(r.kind) + ")" : ""), "", "■ 作業1回で使うもの"];
+    c.lines.forEach(function (x) {
+      if (!x.m) return;
+      var q = x.l.tool ? { m: idx(x.m), t: 1, b: n(x.l.broken), o: n(x.l.ops) } : { m: idx(x.m), q: n(x.l.qty) };
+      ls.push(q);
+      out.push("・" + (x.m.name || "(名前なし)") + " " + (x.l.tool ? "(道具)1回に" + fq(x.rate) + unitOf(x.m) + "壊れる計算" : fq(x.qty) + unitOf(x.m)) + "(買値 " + G(n(x.m.price)) + "/" + unitOf(x.m) + ")");
+    });
+    if (n(r.license) > 0) out.push("・ライセンス料 " + G(n(r.license)));
+    if (y > 0) out.push("", "作業1回の完成数: " + fq(y) + "個");
+    out.push("", "■ 原価(送った人の価格で計算)", "作業1回 " + G(c.per) + (y > 0 ? " ・ 1個 " + G(c.per / y, 1) : ""), "", "▼ 取り込むときは、この文章ごとコピーして、アプリのメニュー「レシピの共有」から貼り付けてください。");
+    var data = { v: 1, n: r.name || "", k: r.kind || "", lic: n(r.license), y: y > 0 ? Math.round(y * 1000) / 1000 : 0, h: n(r.hours), w: r.work || "", m: mats, l: ls };
+    out.push("SO2R:" + b64e(data));
+    return out.join("\n");
+  }
+  function copyText(txt, done, fail) {
+    var ok = false, tmp = document.createElement("textarea");
+    tmp.value = txt; tmp.setAttribute("readonly", "");
+    tmp.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;";
+    document.body.appendChild(tmp); tmp.focus(); tmp.select(); tmp.setSelectionRange(0, txt.length);
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(tmp);
+    if (ok) { done(); return; }
+    try { navigator.clipboard.writeText(txt).then(done, fail); } catch (e) { fail(); }
+  }
+  function shareCopy() {
+    var txt = shareText(curRec());
+    setMenu(true); $("shareDet").open = true;
+    copyText(txt, function () { shMsg("「" + (curRec().name || "(名前なし)") + "」をコピーしました。LINEなどに貼り付けて送れます。"); },
+      function () { var ta = $("shText"); ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); shMsg("自動でコピーできませんでした。下の欄を選択したので、コピーして送ってください。"); });
+  }
+  var shStaged = null;
+  function shareStage(txt) {
+    shStaged = null; $("shPrev").hidden = true;
+    var mt = /SO2R:([A-Za-z0-9_\-+\/=]+)/.exec(txt || ""), d = null;
+    if (mt) { try { d = b64d(mt[1]); } catch (e) { d = null; } }
+    if (!d || d.v !== 1 || !Array.isArray(d.m) || !Array.isArray(d.l)) { shMsg("レシピの共有文章が見つかりませんでした。送られてきた文章を、最後までそのままコピーしてください。"); return; }
+    shStaged = d;
+    var find = function (nm) { var k = normName(nm); return st.mats.filter(function (m) { return normName(m.name) === k; })[0] || null; };
+    var per = n(d.lic), rows = "";
+    d.l.forEach(function (l) {
+      var m = d.m[l.m]; if (!m) return;
+      var mine = find(m.n), price = mine && n(mine.price) > 0 ? n(mine.price) : n(m.p);
+      var qty = l.t ? (n(l.o) > 0 ? n(l.b) / n(l.o) : 0) : n(l.q);
+      per += qty * price;
+      rows += "<li>" + esc(m.n) + " " + (l.t ? "(道具)1回に" + fq(qty) + esc(m.u || "個") + "壊れる計算" : fq(qty) + esc(m.u || "個")) +
+        " ・ " + (mine ? (n(mine.price) > 0 ? "あなたの買値 " + G(n(mine.price)) : "あなたの市場に同名あり(価格は共有の " + G(n(m.p)) + ")") : "市場に新しく追加(買値 " + G(n(m.p)) + ")") + "</li>";
+    });
+    $("shPrev").innerHTML = "<b>" + esc(d.n || "(名前なし)") + (kindName(d.k) ? "(" + kindName(d.k) + ")" : "") + "</b>" +
+      "<h3>作業1回で使うもの</h3><ul>" + rows + (n(d.lic) > 0 ? "<li>ライセンス料 " + G(n(d.lic)) + "</li>" : "") + "</ul>" +
+      (n(d.y) > 0 ? "<h3>完成数</h3><ul><li>作業1回 " + fq(n(d.y)) + "個</li></ul>" : "") +
+      '<div class="cur">あなたの市場の価格で計算すると、作業1回 ' + G(per) + (n(d.y) > 0 ? " ・ 1個 " + G(per / n(d.y), 1) : "") + "。</div>" +
+      '<div class="btns"><button type="button" data-act="shGo">レシピに追加</button><button type="button" data-act="shNo">やめる</button></div>';
+    $("shPrev").hidden = false; $("shText").hidden = true; $("shText").value = ""; shMsg("");
+  }
+  function shareGo() {
+    var d = shStaged; if (!d) return;
+    var ids = d.m.map(function (m) {
+      var k = normName(m.n), ex = st.mats.filter(function (x) { return normName(x.name) === k; })[0];
+      if (ex) { if (!(n(ex.price) > 0) && n(m.p) > 0) ex.price = n(m.p); return ex.id; }
+      var cat = catOf(m.n), nm = { id: uid(), name: m.n, unit: m.u || "", price: n(m.p) > 0 ? n(m.p) : "", cat: cat, catAuto: !!cat };
+      st.mats.push(nm); return nm.id;
+    });
+    var lines = d.l.filter(function (l) { return d.m[l.m]; }).map(function (l) {
+      return l.t ? { id: uid(), mat: ids[l.m], tool: true, broken: n(l.b), ops: n(l.o) } : { id: uid(), mat: ids[l.m], qty: n(l.q) };
+    });
+    var rec = { id: uid(), name: String(d.n || "共有されたレシピ"), kind: d.k === "official" || d.k === "recipe" ? d.k : "", lines: lines, license: n(d.lic), batch: 1, total: n(d.y) > 0 ? n(d.y) : "", hours: n(d.h) > 0 ? n(d.h) : "", work: d.w === "in" || d.w === "out" ? d.w : "", sell: "", fee: "" };
+    st.recipes.push(rec); st.cur = rec.id; st.view = "recipe"; shStaged = null; save();
+    $("shPrev").hidden = true; setMenu(false); renderMain(); window.scrollTo(0, 0);
+  }
+  function shareLoad() {
+    var ta = $("shText");
+    if (!ta.hidden && ta.value.trim()) { shareStage(ta.value); return; }
+    var manual = function () { ta.hidden = false; ta.focus(); shMsg("自動で読み取れませんでした。下の欄に、もらった文章を貼り付けてください(貼り付けると内容が出ます)。"); };
+    shMsg("クリップボードを読み取っています…");
+    var fin = false, tm = setTimeout(function () { if (!fin) { fin = true; manual(); } }, 4000);
+    var ok = function (t) { if (fin) return; fin = true; clearTimeout(tm); shareStage(t); };
+    var ng = function () { if (fin) return; fin = true; clearTimeout(tm); manual(); };
+    try { navigator.clipboard.readText().then(ok, ng); } catch (e) { ng(); }
+  }
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.id === "shText" && e.target.value.trim()) shareStage(e.target.value);
+  });
 
   function bkMsg(t) { $("bkMsg").textContent = t; }
   function backupCopy() {
@@ -833,6 +1149,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     data.seeds = Array.isArray(data.seeds) ? data.seeds : st.seeds.slice();
     data.shop = data.shop || { name: "", lv: "", tax: 10, ind: 100, out: 100 };
     data.view = "recipe";
+    data.mats.forEach(function (m) { if (m.cat === undefined) { m.cat = catOf(m.name); m.catAuto = !!m.cat; } });
     data.recipes.forEach(function (r) {
       if (r.kind === undefined) r.kind = "";
       if (r.total === undefined) r.total = n(r.yield) > 0 ? Math.round(n(r.yield) * Math.max(1, n(r.batch)) * 1000) / 1000 : "";
@@ -858,7 +1175,8 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   function restoreGo() {
     if (!staged) return;
     st = staged; staged = null; save(); renderMain();
-    $("bkPrev").hidden = true; $("bkText").hidden = true; $("bkText").value = ""; bkMsg("復元しました。");
+    $("bkPrev").hidden = true; $("bkText").hidden = true; $("bkText").value = ""; bkMsg("");
+    setMenu(false); window.scrollTo(0, 0);
   }
   document.addEventListener("input", function (e) {
     if (e.target && e.target.id === "bkText" && e.target.value.trim()) restoreText(e.target.value);
@@ -877,6 +1195,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
 
   renderMain();
   renderVer();
+  if (isNew && !st.tutDone) tutStart();
 })();
 </script>
 </body></html>
