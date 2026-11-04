@@ -127,6 +127,10 @@ input.auto { background: transparent; border-style: dashed; color: var(--accent)
 .m3 { display: grid; gap: 6px; }
 .rk { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; width: 100%; text-align: left; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
 .rk .nm { font-weight: 700; overflow-wrap: anywhere; }
+.rk.sel { border-color: var(--accent); background: var(--accent-soft); }
+.rk .ck { color: var(--accent); font-weight: 400; }
+.fgl { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; font-size: .9rem; }
+.fgl button { font-size: .8rem; padding: 4px 10px; }
 .rk .w { font-weight: 700; font-variant-numeric: tabular-nums; }
 .rk .d, .rk .cw { grid-column: 1 / -1; color: var(--muted); font-size: .8rem; }
 .rk .cw { color: var(--bad); }
@@ -256,7 +260,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
 
   var VERSION = "1.5.0";
   var CHANGES = [
-    { v: "1.5.0", d: "2026-11-04", t: ["販売の開始時刻を、あとから直せるようになりました(押し忘れても大丈夫)","販売の記録を1件ずつ直したり、消したりできるようになりました(売値・売れた数・開始と終了の日時)","1回の作業で成果物が何種類かできるレシピに対応しました。レシピ画面の「成果物が複数ある作業にする」を押すと、成果物ごとに名前・完成数・売値を入れられます。共通の原価は売値の比で配分し、利益と時給は全体で出ます。成果物は、それぞれ「市場」の自作素材と「販売」タブの商品になります","レシピ画面に「複数成果の作業から作る」を追加しました。ゲームの、成果が何種類かできる作業(107件)を、名前・材料・成果・時間・屋内外のまま選んで、レシピにできます。材料と成果の数、売値は、予約履歴を見て入れてください。ほかのレシピで道具として使っている素材は、破損率もそのまま引き継ぎます","「販売」タブに、作る速さと売れる速さの比べ(作りすぎ・足りない)を追加しました。「比較」タブには、販売の記録から、販売時間あたりの利益の順に並べた一覧を追加しました","自作の商品(レシピから自動で入った素材)は、「市場」の「自作(レシピから)」にまとめました。価格はレシピの原価から自動で入り、他店で買う素材と混ざりません(素材の選択肢にも「(自作)」と出ます)。他店で買う場合は、詳細の「原価計算には自作の原価を使う」を外してください","レシピから登録された商品は、すべて「自作」として扱い、価格はレシピの原価で自動計算されます","レシピと素材の名前は、完全に同じ場合だけ同じものとして扱います。「魔法の知識」と「魔法の知識(身内向け)」のように名前が違えば、別のレシピ・別の素材になります","スマホで、販売画面の時刻の欄などがはみ出していたのを直しました"] },
+    { v: "1.5.0", d: "2026-11-04", t: ["「販売」タブの中に「身内用」の画面を追加しました(上の「販売｜身内用」で切り替え)。商品ごとの原価(切り上げ)が公式品・レシピ品に分かれて並び、選んだものだけを「商品名@価格」でコピーできます(レシピ品は「レシピ#商品名@価格」)","「比較」タブの各項目を、タップで開いたり閉じたりできるようにしました","販売の開始時刻を、あとから直せるようになりました(押し忘れても大丈夫)","販売の記録を1件ずつ直したり、消したりできるようになりました(売値・売れた数・開始と終了の日時)","1回の作業で成果物が何種類かできるレシピに対応しました。レシピ画面の「成果物が複数ある作業にする」を押すと、成果物ごとに名前・完成数・売値を入れられます。共通の原価は売値の比で配分し、利益と時給は全体で出ます。成果物は、それぞれ「市場」の自作素材と「販売」タブの商品になります","レシピ画面に「複数成果の作業から作る」を追加しました。ゲームの、成果が何種類かできる作業(107件)を、名前・材料・成果・時間・屋内外のまま選んで、レシピにできます。材料と成果の数、売値は、予約履歴を見て入れてください。ほかのレシピで道具として使っている素材は、破損率もそのまま引き継ぎます","「販売」タブに、作る速さと売れる速さの比べ(作りすぎ・足りない)を追加しました。「比較」タブには、販売の記録から、販売時間あたりの利益の順に並べた一覧を追加しました","自作の商品(レシピから自動で入った素材)は、「市場」の「自作(レシピから)」にまとめました。価格はレシピの原価から自動で入り、他店で買う素材と混ざりません(素材の選択肢にも「(自作)」と出ます)。他店で買う場合は、詳細の「原価計算には自作の原価を使う」を外してください","レシピから登録された商品は、すべて「自作」として扱い、価格はレシピの原価で自動計算されます","レシピと素材の名前は、完全に同じ場合だけ同じものとして扱います。「魔法の知識」と「魔法の知識(身内向け)」のように名前が違えば、別のレシピ・別の素材になります","スマホで、販売画面の時刻の欄などがはみ出していたのを直しました"] },
     { v: "1.4.0", d: "2026-11-02", t: ["新しい「販売」タブを追加。何種類かの商品を同時に売りながら、販売を始めた時刻と売れた数を記録できます。売値ごとの1時間あたりの利益が出て、いちばん効率が良い売値と、次に試す売値の目安が分かります","「比較」は、「レシピ」タブの上の切り替え(レシピ | 比較)に移動しました","レシピの商品名が、自動で「市場」の素材にも追加されるようになりました。ほかのレシピの素材として使えます(同じ名前の素材があれば追加しません)","新しいレシピの商品名が最初から空欄になり、消さずにすぐ入力できるようになりました","レシピ品の道具の破損率が、作業時間(30分10%・1時間20〜30%・2時間50%・4時間100%)から自動で決まります(1時間のように幅がある場合は、使う値を選びます)。「作業時間から」と「実績から」は、道具ごとに切り替えられます。道具の行から作業時間も選べます"] },
     { v: "1.3.0", d: "2026-10-27", t: ["レシピの素材・量・原価を、文章にしてコピーして他の人に送れるようになりました(メニュー「レシピの共有」、またはレシピ画面の「共有」)", "もらった文章を貼り付けると、内容を確認してから自分のレシピに取り込めます。素材は市場に自動で追加され、同じ名前の素材は自分の買値が使われます","売値から逆算して、素材を何Gまでで買えばよいか(買取価格の目安)を調べられるようになりました","はじめての人向けのチュートリアルを追加(メニューの「使い方を見る」からいつでも見られます)"] },
     { v: "1.2.0", d: "2026-10-27", t: [
@@ -401,7 +405,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   }
   st.recipes.forEach(function (r) { if (r.work === undefined) r.work = ""; });
   st.recipes.forEach(function (r) { if (r.kind === undefined) r.kind = ""; });
-  if (["recipe", "mats", "cmp", "sales"].indexOf(st.view) < 0) st.view = "recipe";
+  if (["recipe", "mats", "cmp", "sales", "fam"].indexOf(st.view) < 0) st.view = "recipe";
   st.mats.forEach(function (m) { if (m.cat === undefined) { m.cat = catOf(m.name); m.catAuto = !!m.cat; } });
   /* v1.3: the user enters the total finished count of all runs; the per-run count is derived. */
   st.recipes.forEach(function (r) {
@@ -647,8 +651,8 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     var by = {};
     (r.sales || []).forEach(function (x) {
       if (!x.end || (x.oid || "") !== (oid || "")) return;
-      var s = saleStats(x, 0), k = String(x.price), a = by[k] || (by[k] = { price: x.price, ms: 0, sold: 0, total: 0, runs: 0 });
-      a.ms += s.ms; a.sold += s.sold; a.total += s.total; a.runs++;
+      var s = saleStats(x, 0), k = String(x.price), a = by[k] || (by[k] = { price: x.price, ms: 0, sold: 0, total: 0, runs: 0, cost: 0 });
+      a.ms += s.ms; a.sold += s.sold; a.total += s.total; a.runs++; a.cost += n(x.unit) * s.sold;
     });
     return Object.keys(by).map(function (k) {
       var a = by[k], ok = a.ms >= 60000 && a.sold > 0;
@@ -697,6 +701,63 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     else v = "作る数と売れる数が、ほぼつり合っています。";
     return '<div class="kv"><span>作る速さ / 売れる速さ</span><b>' + fmt(mk, 1) + "個/時 ・ " + fmt(sp, 1) + "個/時</b></div>" + '<div class="note" style="margin:0 0 6px">' + v + "</div>";
   }
+  /* "at cost" price list for relatives: unit cost rounded up, copied as 商品名@価格 */
+  /* goes up to the next step but never by 100G or more: 90→100, 122→150, 153→200, 1003→1100, 1101→1200 */
+  function famRound(v) {
+    if (v >= 1000) return Math.ceil(v / 100 - 1e-9) * 100;
+    var step = v < 100 ? 10 : 50;
+    return (Math.floor((v + 1e-9) / step) + 1) * step;
+  }
+  function famName(x) { return String(x || "").replace(/[（(]\s*身内向け\s*[）)]/g, "").trim(); }
+  function famItems() {
+    var out = [];
+    st.recipes.forEach(function (r) {
+      var y = yieldOf(r); if (!(y > 0)) return;
+      var c = calc(r), per = c.per, warn = missingPrices(c).length > 0, pre = r.kind === "recipe" ? "レシピ#" : "", g = r.kind === "recipe" ? "recipe" : r.kind === "official" ? "official" : "";
+      if (multi(r)) outRows(r).forEach(function (x) {
+        if (!(x.y > 0) || !x.name) return;
+        var u = outUnitFrom(r, x.id, per); if (u !== null) out.push({ name: famName(x.name), tag: famName(x.name) !== x.name, price: famRound(u), warn: warn, pre: pre, g: g, key: r.id + "|" + x.id });
+      });
+      else { var nm = String(r.name || "").trim(); if (nm) out.push({ name: famName(nm), tag: famName(nm) !== nm, price: famRound(per / y), warn: warn, pre: pre, g: g, key: r.id + "|" }); }
+    });
+    return out;
+  }
+  var famSel = {}, cmpOpen = {};
+  function famText() {
+    var it = famItems().filter(function (x) { return famSel[x.key]; }), out = [];
+    ["official", "recipe", ""].forEach(function (g) { it.forEach(function (x) { if (x.g === g) out.push(x.pre + x.name + "@" + x.price); }); });
+    return out;
+  }
+  function famBtn() {
+    var n = famText().length, bt = $("famGo");
+    if (bt) { bt.textContent = "選んだものをコピー(" + n + "件)"; bt.disabled = n === 0; }
+  }
+  function famBody() {
+    var items = famItems();
+    if (!items.length) return '<div class="hint">完成数と素材の価格を入れたレシピがありません。</div>';
+    var n = items.filter(function (x) { return famSel[x.key]; }).length;
+    var html = "";
+    [["official", "公式品"], ["recipe", "レシピ品"], ["", "種別が未選択"]].forEach(function (g) {
+      var list = items.filter(function (x) { return x.g === g[0]; });
+      if (!list.length) return;
+      var all = list.every(function (x) { return famSel[x.key]; });
+      html += '<div class="fgl"><span>' + g[1] + "(" + list.length + "件)</span>" +
+        '<button type="button" data-act="famAll" data-g="' + g[0] + '">' + (all ? "選択をはずす" : "全部選ぶ") + "</button></div>" +
+        list.map(function (x) {
+          var on = !!famSel[x.key];
+          return '<button type="button" class="rk' + (on ? " sel" : "") + '" data-act="famSel" data-k="' + esc(x.key) + '" aria-pressed="' + on + '"><span class="nm"><span class="ck">' + (on ? "☑" : "☐") + "</span> " + esc(x.name) + (x.tag ? ' <span class="u">(身内向け)</span>' : "") + '</span><span class="w">' + G(x.price) + "</span>" +
+            '<span class="d">コピーする文字: ' + esc(x.pre + x.name + "@" + x.price) + "</span>" + (x.warn ? '<span class="cw">価格が未入力の素材があります(原価が低く出ています)</span>' : "") + "</button>";
+        }).join("");
+    });
+    return html + '<div class="btns" style="margin-top:10px"><button type="button" id="famGo" data-act="famCopy"' + (n ? "" : " disabled") + ">選んだものをコピー(" + n + "件)</button></div>" +
+      '<div class="note" id="famMsg" role="status" aria-live="polite"></div>' +
+      '<p class="note">原価は、素材・道具の破損・ライセンス料を合わせた、1個あたりの値(販売税は入っていません)です。切り上げは、100G未満は10G、100〜999Gは50G、1,000G以上は100G単位です。上がるのは最大でも、100G未満、100〜999Gは50G、1,000G以上は100G未満です(例: 90→100、122→150、153→200、1003→1100)。成果物が複数ある作業は、売値の比で配分した原価です。「レシピ品」のレシピは「レシピ#商品名@価格」の形でコピーされます。</p>';
+  }
+  function famPage() { return "<section><h2>身内に流す用 ・ 原価(切り上げ)</h2>" + famBody() + "</section>"; }
+  function cmpSec(key, title, count, body, defOpen) {
+    var open = cmpOpen[key] === undefined ? !!defOpen : cmpOpen[key];
+    return '<button type="button" class="cg" data-act="cmpTog" data-k="' + key + '" aria-expanded="' + open + '"><span>' + (open ? "▾ " : "▸ ") + title + "</span><span>" + count + "</span></button>" + (open ? "<section>" + body + "</section>" : "");
+  }
   function salesRankHTML() {
     var rows = [];
     saleItems().forEach(function (it) {
@@ -704,26 +765,27 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       if (b) rows.push({ it: it, b: b });
     });
     rows.sort(function (a, c) { return c.b.wageH - a.b.wageH; });
-    if (!rows.length) return '<section><h2>販売の記録から ・ 販売時間あたりの利益</h2><div class="hint">「販売」タブで売れた数を記録すると、ここに並びます。</div></section>';
-    return '<section><h2>販売の記録から ・ 販売時間あたりの利益</h2>' + rows.map(function (o) {
+    if (!rows.length) return cmpSec("sale", "販売の記録から ・ 販売時間あたりの利益", "0件", '<div class="hint">「販売」タブで売れた数を記録すると、ここに並びます。</div>', false);
+    return cmpSec("sale", "販売の記録から ・ 販売時間あたりの利益", rows.length + "件", rows.map(function (o) {
       var it = o.it, b = o.b;
       return '<button type="button" class="rk" data-act="openRec" data-id="' + esc(it.r.id) + '"><span class="nm">' + esc(it.name) + (it.sub ? " (" + esc(it.sub) + ")" : "") + '</span><span class="w ' + (b.wageH >= 0 ? "pos" : "neg") + '">' + G(b.wageH) + "/時間</span>" +
         '<span class="d">売値 ' + G(b.price) + " ・ 1時間に " + fmt(b.perH, 1) + "個" + (b.few ? " ・ まだ少ないので参考程度" : "") + "</span></button>";
-    }).join("") + '<p class="note" style="padding:0 4px">販売していた時間あたりの利益(販売税を引いたあと)の、いちばん良かった売値の記録です。タップするとレシピを開きます。</p></section>';
+    }).join("") + '<p class="note" style="padding:0 4px">販売していた時間あたりの利益(販売税を引いたあと)の、いちばん良かった売値の記録です。タップするとレシピを開きます。</p>', false);
   }
   var editS = {}, openT = {};
   function dtl(t) { var d = new Date(t), z = function (v) { return ("0" + v).slice(-2); }; return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + "T" + z(d.getHours()) + ":" + z(d.getMinutes()); }
   function trialHTML(r, x) {
-    var s = saleStats(x, 0), line = '<div class="d">' + fmtClock(x.start) + " 〜 " + fmtClock(x.end) + "(" + fmtDur(s.ms) + ") ・ " + fmt(s.sold) + "個 ・ 利益 " + G(s.total) + "</div>";
+    var s = saleStats(x, 0), line = '<div class="d">' + fmtClock(x.start) + " 〜 " + fmtClock(x.end) + "(" + fmtDur(s.ms) + ") ・ " + fmt(s.sold) + "個 ・ 利益 " + G(s.total) + " ・ 1個 原価" + G(x.unit, 1) + "・利益" + G(s.prof, 1) + "</div>";
     var head = '<div class="t"><span>売値 ' + G(x.price) + "</span><span>" + (s.wageH !== null ? G(s.wageH) + "/時間" : "–") + "</span></div>";
     if (!editS[x.id]) return '<div class="line">' + head + line + '<div class="btns" style="margin:4px 0 0"><button type="button" data-act="saleEdit" data-id="' + x.id + '">編集</button></div></div>';
     return '<div class="line">' + head + '<div class="ed3">' +
       '<label class="ed">売値(G)<input type="number" inputmode="decimal" min="0" data-sedit="price" data-id="' + x.id + '" value="' + esc(x.price) + '"></label>' +
+      '<label class="ed">原価(1個・G)<input type="number" inputmode="decimal" min="0" data-sedit="unit" data-id="' + x.id + '" value="' + esc(Math.round(n(x.unit) * 10) / 10) + '"></label>' +
       '<label class="ed">売れた数(個)<input type="number" inputmode="numeric" min="0" data-sedit="sold" data-id="' + x.id + '" value="' + esc(x.sold) + '"></label>' +
       '<label class="ed w">開始<input type="datetime-local" data-sedit="start" data-id="' + x.id + '" value="' + dtl(x.start) + '"></label>' +
       '<label class="ed w">終了<input type="datetime-local" data-sedit="end" data-id="' + x.id + '" value="' + dtl(x.end) + '"></label></div>' +
-      '<div class="note" data-emsg="' + x.id + '">直したら「完了」を押してください。原価と販売税は、その時の値のままです。</div>' +
-      '<div class="btns" style="margin:6px 0 0"><button type="button" data-act="saleEdit" data-id="' + x.id + '">完了</button><button type="button" data-act="saleDel" data-id="' + x.id + '">この記録を消す</button></div></div>';
+      '<div class="note" data-emsg="' + x.id + '">直したら「完了」を押してください。原価と販売税は、記録した時の値のままです(原価は直せます)。</div>' +
+      '<div class="btns" style="margin:6px 0 0"><button type="button" data-act="saleEdit" data-id="' + x.id + '">完了</button><button type="button" data-act="saleCost" data-id="' + x.id + '">原価をいまの値に入れ直す</button><button type="button" data-act="saleDel" data-id="' + x.id + '">この記録を消す</button></div></div>';
   }
   function salesHTML() {
     var html = "", act = [];
@@ -755,7 +817,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       var trials = (r.sales || []).filter(function (x) { return x.end && (x.oid || "") === it.oid; }).sort(function (a, b) { return b.start - a.start; });
       return '<div class="sc"><div class="kv big"><span>' + esc(it.name) + (it.sub ? ' <span class="u">(' + esc(it.sub) + ")</span>" : "") + "</span><span></span></div>" + list.map(function (a) {
         return '<div class="line"><div class="t"><span>売値 ' + G(a.price) + (a === best && list.length > 1 ? " ★" : "") + "</span><span>" + (a.wageH !== null ? G(a.wageH) + "/時間" : "–") + "</span></div>" +
-          '<div class="d">' + fmtDur(a.ms) + "で " + fmt(a.sold) + "個" + (a.perH !== null ? "(1時間 " + fmt(a.perH, 1) + "個)" : "") + " ・ 利益 " + G(a.total) + (a.runs > 1 ? " ・ " + a.runs + "回の合計" : "") +
+          '<div class="d">' + fmtDur(a.ms) + "で " + fmt(a.sold) + "個" + (a.perH !== null ? "(1時間 " + fmt(a.perH, 1) + "個)" : "") + " ・ 利益 " + G(a.total) + (a.sold > 0 ? " ・ 1個 原価" + G(a.cost / a.sold, 1) + "・利益" + G(a.total / a.sold, 1) : "") + (a.runs > 1 ? " ・ " + a.runs + "回の合計" : "") +
           (a.few ? ' <span class="cw">まだ少ないので参考程度</span>' : "") + "</div></div>";
       }).join("") +
         (best && list.length > 1 ? '<div class="kv"><span>いまいちばん効率が良い売値</span><b class="pos">' + G(best.price) + "</b></div>" : "") +
@@ -1004,13 +1066,15 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       return head + '<span class="d">未入力: ' + s.missing.join("、") + (s.unit !== null ? " ・ 原価/個 " + G(s.unit, 1) : " ・ 原価/回 " + G(s.per)) + "</span>" + warn + "</button>";
     };
     var groups = [["official", "公式品"], ["recipe", "レシピ品"], ["", "種別が未選択"]];
+    var wnote = '<p class="note">時給は、作業1回の利益 ÷ 作業時間(店舗の速度を反映)です。同時に動かせる作業枠の数は含みません。タップするとそのレシピを開きます。</p>', first = true;
     var secs = groups.map(function (g) {
       var list = ready.filter(function (x) { return (x.r.kind || "") === g[0]; });
-      return list.length ? "<section><h2>時給の高い順 ・ " + g[1] + "</h2>" + list.map(card).join("") + "</section>" : "";
+      if (!list.length) return "";
+      var body = list.map(card).join("") + (first ? wnote : ""); first = false;
+      return cmpSec("w" + g[0], "時給の高い順 ・ " + g[1], list.length + "件", body, true);
     }).join("");
     return (secs || '<section><h2>時給の高い順</h2><div class="hint">完成数・作業時間・売値を入れたレシピがまだありません。</div></section>') +
-      '<p class="note" style="padding:0 4px">時給は、作業1回の利益 ÷ 作業時間(店舗の速度を反映)です。同時に動かせる作業枠の数は含みません。タップするとそのレシピを開きます。</p>' +
-      (rest.length ? "<section><h2>入力が足りないレシピ</h2>" + rest.map(card).join("") + "</section>" : "") + salesRankHTML();
+      (rest.length ? cmpSec("rest", "入力が足りないレシピ", rest.length + "件", rest.map(card).join(""), false) : "") + salesRankHTML();
   }
 
   function shopHTML() {
@@ -1077,15 +1141,16 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     pending = null;
     syncRecipeMats();
     if (st.view !== "mats") { newM = []; sortMsg = ""; }
-    var v = ["mats", "cmp", "sales"].indexOf(st.view) >= 0 ? st.view : "recipe";
+    var v = ["mats", "cmp", "sales", "fam"].indexOf(st.view) >= 0 ? st.view : "recipe";
     $("tabRecipe").setAttribute("aria-pressed", v === "recipe" || v === "cmp");
     $("tabMats").setAttribute("aria-pressed", v === "mats");
-    $("tabSales").setAttribute("aria-pressed", v === "sales");
+    $("tabSales").setAttribute("aria-pressed", v === "sales" || v === "fam");
     saleDot();
     $("bar").hidden = v !== "recipe";
     var sub = v === "recipe" || v === "cmp" ? '<div class="tabs" style="grid-template-columns:repeat(2,1fr);margin-bottom:10px" role="group" aria-label="レシピの表示">' +
-      '<button type="button" data-act="view" data-view="recipe" aria-pressed="' + (v === "recipe") + '">レシピ</button><button type="button" data-act="view" data-view="cmp" aria-pressed="' + (v === "cmp") + '">比較</button></div>' : "";
-    $("main").innerHTML = sub + (v === "mats" ? matsHTML() : v === "cmp" ? cmpHTML() : v === "sales" ? salesHTML() : recipeHTML());
+      '<button type="button" data-act="view" data-view="recipe" aria-pressed="' + (v === "recipe") + '">レシピ</button><button type="button" data-act="view" data-view="cmp" aria-pressed="' + (v === "cmp") + '">比較</button></div>' : v === "sales" || v === "fam" ? '<div class="tabs" style="grid-template-columns:repeat(2,1fr);margin-bottom:10px" role="group" aria-label="販売の表示">' +
+      '<button type="button" data-act="view" data-view="sales" aria-pressed="' + (v === "sales") + '">販売</button><button type="button" data-act="view" data-view="fam" aria-pressed="' + (v === "fam") + '">身内用</button></div>' : "";
+    $("main").innerHTML = sub + (v === "mats" ? matsHTML() : v === "cmp" ? cmpHTML() : v === "sales" ? salesHTML() : v === "fam" ? famPage() : recipeHTML());
     if (v === "sales") updateSales();
     $("shopBox").innerHTML = shopHTML();
     var sh = st.shop;
@@ -1094,7 +1159,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   }
 
   function updateResults() {
-    if (st.view === "mats" || st.view === "shop" || st.view === "cmp" || st.view === "sales") return;
+    if (st.view === "mats" || st.view === "shop" || st.view === "cmp" || st.view === "sales" || st.view === "fam") return;
     var r = curRec(), c = calc(r), noP = missingPrices(c);
     var items = [];
     c.lines.forEach(function (x) {
@@ -1228,7 +1293,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     if (el.dataset && el.dataset.sedit) {
       var ef = findSale(el.dataset.id); if (!ef) return;
       var ek = el.dataset.sedit, em = document.querySelector('[data-emsg="' + el.dataset.id + '"]'), bad = "";
-      if (ek === "price" || ek === "sold") {
+      if (ek === "price" || ek === "sold" || ek === "unit") {
         var nv = n(el.value);
         if (ek === "price" && !(nv > 0)) bad = "売値は0より大きい数にしてください。"; else ef.x[ek] = nv;
       } else {
@@ -1328,6 +1393,23 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       nr.outs = w.o.map(function (o) { return { id: uid(), name: o, total: "", sell: "" }; });
       st.recipes.push(nr); st.cur = nr.id; st.view = "recipe"; wkOpen = false; wkMsg = ""; save(); renderMain(); window.scrollTo(0, 0);
     }
+    else if (act === "cmpTog") { var ck2 = b.dataset.k, y0 = window.scrollY; cmpOpen[ck2] = !(cmpOpen[ck2] === undefined ? (ck2.charAt(0) === "w") : cmpOpen[ck2]); renderMain(); window.scrollTo(0, y0); }
+    else if (act === "famSel") {
+      var fk = b.dataset.k; famSel[fk] = !famSel[fk];
+      var on = !!famSel[fk]; b.classList.toggle("sel", on); b.setAttribute("aria-pressed", on);
+      var ckEl = b.querySelector(".ck"); if (ckEl) ckEl.textContent = on ? "☑" : "☐";
+      famBtn(); var fm0 = $("famMsg"); if (fm0) fm0.textContent = "";
+    }
+    else if (act === "famAll") {
+      var fg = b.dataset.g, li = famItems().filter(function (x) { return x.g === fg; }), al = li.every(function (x) { return famSel[x.key]; }), y1 = window.scrollY;
+      li.forEach(function (x) { famSel[x.key] = !al; }); renderMain(); window.scrollTo(0, y1);
+    }
+    else if (act === "famCopy") {
+      var fl = famText(), ft = fl.join("\n"), fm = $("famMsg");
+      if (!fl.length) { if (fm) fm.textContent = "コピーするものを選んでください。"; return; }
+      var fs = fl.length > 1 ? fl.length + "件" : "「" + ft + "」";
+      copyText(ft, function () { if (fm) fm.textContent = fs + "をコピーしました。"; }, function () { if (fm) fm.textContent = "自動でコピーできませんでした。" + ft; });
+    }
     else if (act === "outMulti") {
       var o1 = { id: uid(), name: String(r.name || "").trim(), total: r.total, sell: r.sell };
       r.outs = [o1, { id: uid(), name: "", total: "", sell: "" }];
@@ -1368,6 +1450,14 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       if (sp) { sp.x.end = Date.now(); sp.x.sold = n(sp.x.sold); save(); renderMain(); }
     }
     else if (act === "saleTl") { openT[id] = !openT[id]; renderMain(); }
+    else if (act === "saleCost") {
+      var sc = findSale(id);
+      if (sc) {
+        var cy = yieldOf(sc.r), cc = calc(sc.r), cu = sc.x.oid ? recUnitCost(sc.r.id, sc.x.oid) : (cy > 0 ? cc.per / cy : null);
+        if (cu === null || !isFinite(cu)) { var em2 = document.querySelector('[data-emsg="' + id + '"]'); if (em2) em2.textContent = "いまのレシピに完成数が入っていないので、入れ直せません。"; }
+        else { sc.x.unit = cu; save(); renderMain(); }
+      }
+    }
     else if (act === "saleEdit") { editS[id] = !editS[id]; renderMain(); }
     else if (act === "saleDel") {
       var df = findSale(id);
