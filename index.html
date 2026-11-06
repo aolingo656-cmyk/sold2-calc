@@ -258,9 +258,15 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   var G = function (v, d) { return fmt(v, d) + "G"; };
   var $ = function (id) { return document.getElementById(id); };
 
-  var VERSION = "1.5.0";
+  var VERSION = "1.6.0";
   var CHANGES = [
-    { v: "1.5.0", d: "2026-11-04", t: ["「販売」タブの中に「身内用」の画面を追加しました(上の「販売｜身内用」で切り替え)。商品ごとの原価(切り上げ)が公式品・レシピ品に分かれて並び、選んだものだけを「商品名@価格」でコピーできます(レシピ品は「レシピ#商品名@価格」)","「比較」タブの各項目を、タップで開いたり閉じたりできるようにしました","販売の開始時刻を、あとから直せるようになりました(押し忘れても大丈夫)","販売の記録を1件ずつ直したり、消したりできるようになりました(売値・売れた数・開始と終了の日時)","1回の作業で成果物が何種類かできるレシピに対応しました。レシピ画面の「成果物が複数ある作業にする」を押すと、成果物ごとに名前・完成数・売値を入れられます。共通の原価は売値の比で配分し、利益と時給は全体で出ます。成果物は、それぞれ「市場」の自作素材と「販売」タブの商品になります","レシピ画面に「複数成果の作業から作る」を追加しました。ゲームの、成果が何種類かできる作業(107件)を、名前・材料・成果・時間・屋内外のまま選んで、レシピにできます。材料と成果の数、売値は、予約履歴を見て入れてください。ほかのレシピで道具として使っている素材は、破損率もそのまま引き継ぎます","「販売」タブに、作る速さと売れる速さの比べ(作りすぎ・足りない)を追加しました。「比較」タブには、販売の記録から、販売時間あたりの利益の順に並べた一覧を追加しました","自作の商品(レシピから自動で入った素材)は、「市場」の「自作(レシピから)」にまとめました。価格はレシピの原価から自動で入り、他店で買う素材と混ざりません(素材の選択肢にも「(自作)」と出ます)。他店で買う場合は、詳細の「原価計算には自作の原価を使う」を外してください","レシピから登録された商品は、すべて「自作」として扱い、価格はレシピの原価で自動計算されます","レシピと素材の名前は、完全に同じ場合だけ同じものとして扱います。「魔法の知識」と「魔法の知識(身内向け)」のように名前が違えば、別のレシピ・別の素材になります","スマホで、販売画面の時刻の欄などがはみ出していたのを直しました"] },
+    { v: "1.6.0", d: "2026-11-06", t: [
+      "友人から買った物などを転売するときも、「販売」タブで記録できるようになりました。「仕入れ品(転売)」に商品名と仕入れ値を登録すると、仕入れ値が原価になります",
+      "「販売」タブの「作る速さ / 売れる速さ」の下に、1日に何回作業すればちょうどいいか(1日の作業の回数と合計の作業時間)を表示するようにしました。1日に販売している時間は「これまでの記録」で変えられます",
+      "「販売」タブの上に「販売｜身内用」の切り替えを追加しました。「身内用」では、商品ごとの原価(切り上げ)が公式品・レシピ品に分かれて並び、選んだものだけを「商品名@価格」でコピーできます(レシピ品は「レシピ#商品名@価格」)",
+      "販売の記録に、1個あたりの原価と利益を表示しました。記録の原価は直せて、「原価をいまの値に入れ直す」もできます(破損率の出し方を変えたときに便利です)",
+      "「比較」タブの各項目を、タップで開いたり閉じたりできるようにしました"] },
+    { v: "1.5.0", d: "2026-11-04", t: ["販売の開始時刻を、あとから直せるようになりました(押し忘れても大丈夫)","販売の記録を1件ずつ直したり、消したりできるようになりました(売値・売れた数・開始と終了の日時)","1回の作業で成果物が何種類かできるレシピに対応しました。レシピ画面の「成果物が複数ある作業にする」を押すと、成果物ごとに名前・完成数・売値を入れられます。共通の原価は売値の比で配分し、利益と時給は全体で出ます。成果物は、それぞれ「市場」の自作素材と「販売」タブの商品になります","レシピ画面に「複数成果の作業から作る」を追加しました。ゲームの、成果が何種類かできる作業(107件)を、名前・材料・成果・時間・屋内外のまま選んで、レシピにできます。材料と成果の数、売値は、予約履歴を見て入れてください。ほかのレシピで道具として使っている素材は、破損率もそのまま引き継ぎます","「販売」タブに、作る速さと売れる速さの比べ(作りすぎ・足りない)を追加しました。「比較」タブには、販売の記録から、販売時間あたりの利益の順に並べた一覧を追加しました","自作の商品(レシピから自動で入った素材)は、「市場」の「自作(レシピから)」にまとめました。価格はレシピの原価から自動で入り、他店で買う素材と混ざりません(素材の選択肢にも「(自作)」と出ます)。他店で買う場合は、詳細の「原価計算には自作の原価を使う」を外してください","レシピから登録された商品は、すべて「自作」として扱い、価格はレシピの原価で自動計算されます","レシピと素材の名前は、完全に同じ場合だけ同じものとして扱います。「魔法の知識」と「魔法の知識(身内向け)」のように名前が違えば、別のレシピ・別の素材になります","スマホで、販売画面の時刻の欄などがはみ出していたのを直しました"] },
     { v: "1.4.0", d: "2026-11-02", t: ["新しい「販売」タブを追加。何種類かの商品を同時に売りながら、販売を始めた時刻と売れた数を記録できます。売値ごとの1時間あたりの利益が出て、いちばん効率が良い売値と、次に試す売値の目安が分かります","「比較」は、「レシピ」タブの上の切り替え(レシピ | 比較)に移動しました","レシピの商品名が、自動で「市場」の素材にも追加されるようになりました。ほかのレシピの素材として使えます(同じ名前の素材があれば追加しません)","新しいレシピの商品名が最初から空欄になり、消さずにすぐ入力できるようになりました","レシピ品の道具の破損率が、作業時間(30分10%・1時間20〜30%・2時間50%・4時間100%)から自動で決まります(1時間のように幅がある場合は、使う値を選びます)。「作業時間から」と「実績から」は、道具ごとに切り替えられます。道具の行から作業時間も選べます"] },
     { v: "1.3.0", d: "2026-10-27", t: ["レシピの素材・量・原価を、文章にしてコピーして他の人に送れるようになりました(メニュー「レシピの共有」、またはレシピ画面の「共有」)", "もらった文章を貼り付けると、内容を確認してから自分のレシピに取り込めます。素材は市場に自動で追加され、同じ名前の素材は自分の買値が使われます","売値から逆算して、素材を何Gまでで買えばよいか(買取価格の目安)を調べられるようになりました","はじめての人向けのチュートリアルを追加(メニューの「使い方を見る」からいつでも見られます)"] },
     { v: "1.2.0", d: "2026-10-27", t: [
@@ -405,6 +411,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   }
   st.recipes.forEach(function (r) { if (r.work === undefined) r.work = ""; });
   st.recipes.forEach(function (r) { if (r.kind === undefined) r.kind = ""; });
+  if (!Array.isArray(st.resale)) st.resale = [];
   if (["recipe", "mats", "cmp", "sales", "fam"].indexOf(st.view) < 0) st.view = "recipe";
   st.mats.forEach(function (m) { if (m.cat === undefined) { m.cat = catOf(m.name); m.catAuto = !!m.cat; } });
   /* v1.3: the user enters the total finished count of all runs; the per-run count is derived. */
@@ -604,6 +611,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     return html + 'プレイヤーが開発したレシピ(レシピ品)なら、時間から破損率が決まります。<div class="btns" style="margin:6px 0 0"><button type="button" data-act="setKind" data-k="recipe">レシピ品にする</button></div>';
   }
   /* ---------- sales tab: several products can be on sale at once; record start time and sold count, compare profit per hour by price ---------- */
+  function saleOwners() { return st.recipes.concat(st.resale || []); }
   function saleActive(r, oid) { return (r.sales || []).filter(function (x) { return !x.end && (x.oid || "") === (oid || ""); })[0]; }
   /* a "product" on sale: a single-product recipe, or each result of a multi-result work */
   function saleItems() {
@@ -612,6 +620,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       if (multi(r)) r.outs.forEach(function (o) { out.push({ r: r, oid: o.id, name: String(o.name || "").trim() || "(名前なし)", sub: r.name || "", sell: o.sell }); });
       else out.push({ r: r, oid: "", name: r.name || "新しいレシピ", sub: "", sell: r.sell });
     });
+    (st.resale || []).forEach(function (x) { out.push({ r: x, oid: "", name: x.name || "(名前なし)", sub: "転売", sell: x.sell, resale: true }); });
     return out;
   }
   function itemName(r, oid) {
@@ -619,13 +628,14 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     return r.name || "(名前なし)";
   }
   function findSale(id) {
-    for (var i = 0; i < st.recipes.length; i++) {
-      var x = (st.recipes[i].sales || []).filter(function (q) { return q.id === id; })[0];
-      if (x) return { r: st.recipes[i], x: x };
+    var ow = saleOwners();
+    for (var i = 0; i < ow.length; i++) {
+      var x = (ow[i].sales || []).filter(function (q) { return q.id === id; })[0];
+      if (x) return { r: ow[i], x: x };
     }
     return null;
   }
-  function anySale() { return st.recipes.some(function (r) { return (r.sales || []).some(function (x) { return !x.end; }); }); }
+  function anySale() { return saleOwners().some(function (r) { return (r.sales || []).some(function (x) { return !x.end; }); }); }
   function fmtDur(ms) {
     var m = Math.floor(ms / 60000);
     return m < 60 ? m + "分" : Math.floor(m / 60) + "時間" + (m % 60 ? m % 60 + "分" : "");
@@ -687,19 +697,28 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     }).join("");
   }
   /* how fast one product can be made vs how fast it sells */
-  function makeRate(r, oid) {
+  function makeInfo(r, oid) {
     var h = n(r.hours); if (!(h > 0)) return null;
     var eh = h / (speedOf(r) / 100);
     var y = oid ? (outRows(r).filter(function (x) { return x.id === oid; })[0] || {}).y : yieldOf(r);
-    return y > 0 ? y / eh : null;
+    return y > 0 ? { mk: y / eh, y: y, eh: eh } : null;
   }
-  function balanceHTML(mk, sp) {
+  function makeRate(r, oid) { var i = makeInfo(r, oid); return i ? i.mk : null; }
+  function sellHrs() { var v = n(st.shop.sellHrs); return v > 0 && v <= 24 ? v : 24; }
+  function balanceHTML(mk, sp, info) {
     if (!(mk > 0) || !(sp > 0)) return "";
     var ratio = mk / sp, v;
     if (ratio > 1.25) v = "作りすぎです(売れる数の約" + fmt(ratio, 1) + "倍作れます)。作る量を減らして、ほかの商品に回せます。";
     else if (ratio < 0.8) v = "売れるぶんより、作る量が足りません。";
     else v = "作る数と売れる数が、ほぼつり合っています。";
-    return '<div class="kv"><span>作る速さ / 売れる速さ</span><b>' + fmt(mk, 1) + "個/時 ・ " + fmt(sp, 1) + "個/時</b></div>" + '<div class="note" style="margin:0 0 6px">' + v + "</div>";
+    var per = "";
+    if (info && info.y > 0) {
+      var H = sellHrs(), day = sp * H, runs = day / info.y;
+      per = '<div class="kv"><span>1日(' + fmt(H, 1) + '時間販売)の目安</span><b>約' + fmt(day, 0) + "個売れる</b></div>" +
+        '<div class="kv big"><span>1日の作業の回数</span><b class="pos">約' + fmt(runs, 1) + "回</b></div>" +
+        '<div class="note" style="margin:0 0 6px">1回で' + fmt(info.y, 1) + "個できます。1回の作業時間は" + fmtDur(info.eh * 3600000) + "なので、" + fmt(runs, 1) + "回で合計約" + fmtDur(runs * info.eh * 3600000) + "です(売れる速さが今回の記録のままなら)。</div>";
+    }
+    return '<div class="kv"><span>作る速さ / 売れる速さ</span><b>' + fmt(mk, 1) + "個/時 ・ " + fmt(sp, 1) + "個/時</b></div>" + '<div class="note" style="margin:0 0 6px">' + v + "</div>" + per;
   }
   /* "at cost" price list for relatives: unit cost rounded up, copied as 商品名@価格 */
   /* goes up to the next step but never by 100G or more: 90→100, 122→150, 153→200, 1003→1100, 1101→1200 */
@@ -708,7 +727,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     var step = v < 100 ? 10 : 50;
     return (Math.floor((v + 1e-9) / step) + 1) * step;
   }
-  function famName(x) { return String(x || "").replace(/[（(]\s*身内向け\s*[）)]/g, "").trim(); }
+  /* brackets in a recipe name are the player's own memo: left out of the copied name */
+  function famName(x) { var o = String(x || ""), c = o.replace(/[（(][^）)]*[）)]/g, "").replace(/\s+/g, " ").trim(); return c || o.trim(); }
+  function famMemo(x) { var m = String(x || "").match(/[（(][^）)]*[）)]/g); return m ? m.join("") : ""; }
   function famItems() {
     var out = [];
     st.recipes.forEach(function (r) {
@@ -716,9 +737,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       var c = calc(r), per = c.per, warn = missingPrices(c).length > 0, pre = r.kind === "recipe" ? "レシピ#" : "", g = r.kind === "recipe" ? "recipe" : r.kind === "official" ? "official" : "";
       if (multi(r)) outRows(r).forEach(function (x) {
         if (!(x.y > 0) || !x.name) return;
-        var u = outUnitFrom(r, x.id, per); if (u !== null) out.push({ name: famName(x.name), tag: famName(x.name) !== x.name, price: famRound(u), warn: warn, pre: pre, g: g, key: r.id + "|" + x.id });
+        var u = outUnitFrom(r, x.id, per); if (u !== null) out.push({ name: famName(x.name), memo: famMemo(x.name), price: famRound(u), warn: warn, pre: pre, g: g, key: r.id + "|" + x.id });
       });
-      else { var nm = String(r.name || "").trim(); if (nm) out.push({ name: famName(nm), tag: famName(nm) !== nm, price: famRound(per / y), warn: warn, pre: pre, g: g, key: r.id + "|" }); }
+      else { var nm = String(r.name || "").trim(); if (nm) out.push({ name: famName(nm), memo: famMemo(nm), price: famRound(per / y), warn: warn, pre: pre, g: g, key: r.id + "|" }); }
     });
     return out;
   }
@@ -745,13 +766,13 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
         '<button type="button" data-act="famAll" data-g="' + g[0] + '">' + (all ? "選択をはずす" : "全部選ぶ") + "</button></div>" +
         list.map(function (x) {
           var on = !!famSel[x.key];
-          return '<button type="button" class="rk' + (on ? " sel" : "") + '" data-act="famSel" data-k="' + esc(x.key) + '" aria-pressed="' + on + '"><span class="nm"><span class="ck">' + (on ? "☑" : "☐") + "</span> " + esc(x.name) + (x.tag ? ' <span class="u">(身内向け)</span>' : "") + '</span><span class="w">' + G(x.price) + "</span>" +
+          return '<button type="button" class="rk' + (on ? " sel" : "") + '" data-act="famSel" data-k="' + esc(x.key) + '" aria-pressed="' + on + '"><span class="nm"><span class="ck">' + (on ? "☑" : "☐") + "</span> " + esc(x.name) + (x.memo ? ' <span class="u">' + esc(x.memo) + "</span>" : "") + '</span><span class="w">' + G(x.price) + "</span>" +
             '<span class="d">コピーする文字: ' + esc(x.pre + x.name + "@" + x.price) + "</span>" + (x.warn ? '<span class="cw">価格が未入力の素材があります(原価が低く出ています)</span>' : "") + "</button>";
         }).join("");
     });
     return html + '<div class="btns" style="margin-top:10px"><button type="button" id="famGo" data-act="famCopy"' + (n ? "" : " disabled") + ">選んだものをコピー(" + n + "件)</button></div>" +
       '<div class="note" id="famMsg" role="status" aria-live="polite"></div>' +
-      '<p class="note">原価は、素材・道具の破損・ライセンス料を合わせた、1個あたりの値(販売税は入っていません)です。切り上げは、100G未満は10G、100〜999Gは50G、1,000G以上は100G単位です。上がるのは最大でも、100G未満、100〜999Gは50G、1,000G以上は100G未満です(例: 90→100、122→150、153→200、1003→1100)。成果物が複数ある作業は、売値の比で配分した原価です。「レシピ品」のレシピは「レシピ#商品名@価格」の形でコピーされます。</p>';
+      '<p class="note">原価は、素材・道具の破損・ライセンス料を合わせた、1個あたりの値(販売税は入っていません)です。切り上げは、100G未満は10G、100〜999Gは50G、1,000G以上は100G単位です。上がるのは最大でも、100G未満、100〜999Gは50G、1,000G以上は100G未満です(例: 90→100、122→150、153→200、1003→1100)。成果物が複数ある作業は、売値の比で配分した原価です。「レシピ品」のレシピは「レシピ#商品名@価格」の形でコピーされます。商品名の()の中は自分用のメモとして、コピーには入れません。</p>';
   }
   function famPage() { return "<section><h2>身内に流す用 ・ 原価(切り上げ)</h2>" + famBody() + "</section>"; }
   function cmpSec(key, title, count, body, defOpen) {
@@ -768,9 +789,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     if (!rows.length) return cmpSec("sale", "販売の記録から ・ 販売時間あたりの利益", "0件", '<div class="hint">「販売」タブで売れた数を記録すると、ここに並びます。</div>', false);
     return cmpSec("sale", "販売の記録から ・ 販売時間あたりの利益", rows.length + "件", rows.map(function (o) {
       var it = o.it, b = o.b;
-      return '<button type="button" class="rk" data-act="openRec" data-id="' + esc(it.r.id) + '"><span class="nm">' + esc(it.name) + (it.sub ? " (" + esc(it.sub) + ")" : "") + '</span><span class="w ' + (b.wageH >= 0 ? "pos" : "neg") + '">' + G(b.wageH) + "/時間</span>" +
-        '<span class="d">売値 ' + G(b.price) + " ・ 1時間に " + fmt(b.perH, 1) + "個" + (b.few ? " ・ まだ少ないので参考程度" : "") + "</span></button>";
-    }).join("") + '<p class="note" style="padding:0 4px">販売していた時間あたりの利益(販売税を引いたあと)の、いちばん良かった売値の記録です。タップするとレシピを開きます。</p>', false);
+      return '<' + (it.resale ? 'div' : 'button type="button"') + ' class="rk"' + (it.resale ? "" : ' data-act="openRec" data-id="' + esc(it.r.id) + '"') + '><span class="nm">' + esc(it.name) + (it.sub ? " (" + esc(it.sub) + ")" : "") + '</span><span class="w ' + (b.wageH >= 0 ? "pos" : "neg") + '">' + G(b.wageH) + "/時間</span>" +
+        '<span class="d">売値 ' + G(b.price) + " ・ 1時間に " + fmt(b.perH, 1) + "個" + (b.few ? " ・ まだ少ないので参考程度" : "") + "</span></" + (it.resale ? "div" : "button") + ">";
+    }).join("") + '<p class="note" style="padding:0 4px">販売していた時間あたりの利益(販売税を引いたあと)の、いちばん良かった売値の記録です。レシピの商品はタップするとレシピを開きます(転売の商品は開きません)。</p>', false);
   }
   var editS = {}, openT = {};
   function dtl(t) { var d = new Date(t), z = function (v) { return ("0" + v).slice(-2); }; return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + "T" + z(d.getHours()) + ":" + z(d.getMinutes()); }
@@ -787,9 +808,26 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       '<div class="note" data-emsg="' + x.id + '">直したら「完了」を押してください。原価と販売税は、記録した時の値のままです(原価は直せます)。</div>' +
       '<div class="btns" style="margin:6px 0 0"><button type="button" data-act="saleEdit" data-id="' + x.id + '">完了</button><button type="button" data-act="saleCost" data-id="' + x.id + '">原価をいまの値に入れ直す</button><button type="button" data-act="saleDel" data-id="' + x.id + '">この記録を消す</button></div></div>';
   }
+  function resaleHTML() {
+    var list = st.resale || [];
+    return "<section><h2>仕入れ品(転売)" + (list.length ? "(" + list.length + "件)" : "") + "</h2>" +
+      '<p class="note" style="margin-top:0">友人から買った物など、自分で作っていない商品を転売するときに登録します。仕入れ値が原価になり、上の「販売を始める」から、手作りの商品と同じように記録できます。</p>' +
+      list.map(function (x) {
+        return '<div class="sc"><div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="rs_n_' + x.id + '">商品名</label><input id="rs_n_' + x.id + '" type="text" data-sc="resale" data-id="' + x.id + '" data-k="name" value="' + esc(x.name) + '"></div>' +
+          '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="rs_c_' + x.id + '">仕入れ値(1個)</label><input id="rs_c_' + x.id + '" type="number" inputmode="decimal" min="0" data-sc="resale" data-id="' + x.id + '" data-k="cost" value="' + esc(x.cost) + '"><span class="u">G</span></div>' +
+          '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="rs_s_' + x.id + '">売値(目安)</label><input id="rs_s_' + x.id + '" type="number" inputmode="decimal" min="0" data-sc="resale" data-id="' + x.id + '" data-k="sell" value="' + esc(x.sell) + '"><span class="u">G</span></div>' +
+          '<div class="btns" style="margin:4px 0 0"><button type="button" data-act="resaleDel" data-id="' + x.id + '">この仕入れ品を消す</button></div></div>';
+      }).join("") +
+      '<div class="sc"><div class="kv"><span><b>仕入れ品を追加</b></span><span></span></div>' +
+      '<div class="row" style="grid-template-columns:4.5rem minmax(0,1fr)"><label for="rs_name">商品名</label><input id="rs_name" type="text" placeholder="例 はなもり"></div>' +
+      '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="rs_cost">仕入れ値(1個)</label><input id="rs_cost" type="number" inputmode="decimal" min="0" placeholder="買った値段"><span class="u">G</span></div>' +
+      '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="rs_sell">売値(目安)</label><input id="rs_sell" type="number" inputmode="decimal" min="0" placeholder="あとで変えられます"><span class="u">G</span></div>' +
+      '<div class="btns" style="margin:4px 0 0"><button type="button" data-act="resaleAdd">追加</button></div><div class="note" id="rsMsg" role="status" aria-live="polite"></div></div>' +
+      '<p class="note">仕入れ値は、仕入れた回ごとに変わっても大丈夫です。販売を始める前に直すと、その販売の原価として記録されます(記録した原価は、あとから直せます)。仕入れ品を消すと、その販売の記録も消えます。</p></section>';
+  }
   function salesHTML() {
     var html = "", act = [];
-    st.recipes.forEach(function (r) { (r.sales || []).forEach(function (a) { if (!a.end) act.push({ r: r, x: a }); }); });
+    saleOwners().forEach(function (r) { (r.sales || []).forEach(function (a) { if (!a.end) act.push({ r: r, x: a }); }); });
     html += "<section><h2>販売中" + (act.length ? "(" + act.length + "種類)" : "") + "</h2>" + (act.length ? act.map(function (o) {
       var r = o.r, x = o.x;
       return '<div class="sc"><div class="kv"><span><b>' + esc(itemName(r, x.oid)) + "</b>" + (x.oid ? ' <span class="u">(' + esc(r.name || "") + ")</span>" : "") + "</span><span>売値 " + G(x.price) + "</span></div>" +
@@ -807,8 +845,9 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
       '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="sl_time">開始時刻</label><input id="sl_time" type="time" value="' + hhmm(Date.now()) + '"><span class="u">から</span></div>' +
       '<div class="note" style="margin:0 0 6px">押し忘れたときは、売り始めた時刻に直してから押してください。販売中でも、あとから開始時刻を直せます。</div>' +
       '<div class="btns" style="margin:2px 0 6px"><button type="button" data-act="saleStart">販売開始</button></div><div class="note" id="slMsg"></div>' +
-      '<p class="note">商品はレシピの商品名が出ます。レシピに売値と完成数が入っている必要があります。売値は、ここで変えて試せます(レシピの売値は変わりません)。</p>'
-      : '<div class="hint">すべてのレシピが販売中です。</div>') + "</section>";
+      '<p class="note">商品は、レシピの商品名と、下で登録した仕入れ品(転売)が出ます。レシピの商品は、売値と完成数が入っている必要があります。売値は、ここで変えて試せます(レシピの売値は変わりません)。</p>'
+      : '<div class="hint">販売できる商品がありません。レシピに売値と完成数を入れるか、下で仕入れ品を追加してください。</div>') + "</section>";
+    html += resaleHTML();
 
     var hist = saleItems().map(function (it) {
       var r = it.r, key = r.id + "|" + it.oid;
@@ -823,13 +862,15 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
         (best && list.length > 1 ? '<div class="kv"><span>いまいちばん効率が良い売値</span><b class="pos">' + G(best.price) + "</b></div>" : "") +
         (function () {
           var ts = list.reduce(function (a, x) { return a + x.sold; }, 0), th = list.reduce(function (a, x) { return a + x.ms; }, 0) / 3600000;
-          return ts > 0 && th > 0 ? balanceHTML(makeRate(r, it.oid), ts / th) : "";
+          return ts > 0 && th > 0 ? balanceHTML(makeRate(r, it.oid), ts / th, makeInfo(r, it.oid)) : "";
         })() +
         (sug ? '<div class="hint">次に試すなら <b>' + G(sug) + "</b> が良さそうです" + (list.length === 1 ? "(まだ1つの売値しか試していません)" : "") + "。</div>" : "") +
         '<button type="button" class="cg" style="margin-top:8px" data-act="saleTl" data-id="' + esc(key) + '" aria-expanded="' + !!openT[key] + '"><span>' + (openT[key] ? "▾ " : "▸ ") + "記録を1件ずつ見る・直す</span><span>" + trials.length + "件</span></button>" +
         (openT[key] ? trials.map(function (x) { return trialHTML(r, x); }).join("") : "") + "</div>";
     }).join("");
-    html += "<section><h2>これまでの記録</h2>" + (hist || '<div class="hint">まだ記録がありません。販売を終えると、ここに売値ごとの結果が並びます。</div>') +
+    html += "<section><h2>これまでの記録</h2>" +
+      '<div class="row" style="grid-template-columns:minmax(0,1fr) 8.5rem 2.4rem"><label for="sellHrs">1日に販売している時間</label><input id="sellHrs" type="number" inputmode="decimal" min="1" max="24" data-sc="shop" data-k="sellHrs" value="' + esc(st.shop.sellHrs === undefined || st.shop.sellHrs === "" ? 24 : st.shop.sellHrs) + '"><span class="u">時間</span></div>' +
+      '<p class="note" style="margin-top:0">「1日の作業の回数」の計算に使います。店を開けっぱなしなら24時間のままで大丈夫です。</p>' + (hist || '<div class="hint">まだ記録がありません。販売を終えると、ここに売値ごとの結果が並びます。</div>') +
       '<p class="note">販売していた時間あたりの利益(販売税を引いたあと)で比べています。時間帯や在庫でぶれるので、同じ売値を何回か試すと(合計されます)安心です。</p></section>';
     return html;
   }
@@ -840,7 +881,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     for (var i = 0; i < els.length; i++) {
       var f = findSale(els[i].dataset.slive); if (!f) continue;
       var s = saleStats(f.x, now);
-      var bal = s.perH !== null ? balanceHTML(makeRate(f.r, f.x.oid), s.perH) : "";
+      var bal = s.perH !== null ? balanceHTML(makeRate(f.r, f.x.oid), s.perH, makeInfo(f.r, f.x.oid)) : "";
       els[i].innerHTML = '<div class="kv"><span>経過時間</span><b>' + fmtDur(s.ms) + "</b></div>" +
         '<div class="kv"><span>1時間あたりの個数</span><b>' + (s.perH !== null ? fmt(s.perH, 1) + "個" : "1分たつと出ます") + "</b></div>" +
         '<div class="kv"><span>1時間あたりの利益</span><b class="' + (s.prof >= 0 ? "pos" : "neg") + '">' + (s.wageH !== null ? G(s.wageH) : "–") + "</b></div>" +
@@ -1265,6 +1306,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     if (sc === "rec") return curRec();
     if (sc === "out") return (curRec().outs || []).filter(function (x) { return x.id === el.dataset.id; })[0];
     if (sc === "sale") { var fs = findSale(el.dataset.id); return fs ? fs.x : null; }
+    if (sc === "resale") return (st.resale || []).filter(function (x) { return x.id === el.dataset.id; })[0];
     if (sc === "line") return curRec().lines.filter(function (l) { return l.id === el.dataset.id; })[0];
   }
   document.addEventListener("input", function (e) {
@@ -1290,6 +1332,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
   document.addEventListener("change", function (e) {
     var el = e.target;
     if (el.id === "r_name" || (el.dataset && el.dataset.sc === "out" && (el.dataset.k === "name" || el.dataset.k === "total"))) { syncRecipeMats(); return; }
+    if (el.dataset && (el.dataset.sc === "resale" || (el.dataset.sc === "shop" && el.dataset.k === "sellHrs"))) { save(); renderMain(); return; }
     if (el.dataset && el.dataset.sedit) {
       var ef = findSale(el.dataset.id); if (!ef) return;
       var ek = el.dataset.sedit, em = document.querySelector('[data-emsg="' + el.dataset.id + '"]'), bad = "";
@@ -1428,11 +1471,12 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     }
     else if (act === "saleStart") {
       var sv = String(($("sl_rec") || {}).value || "").split("|"), soid = sv[1] || "";
-      var sr = st.recipes.filter(function (q) { return q.id === sv[0]; })[0], msg = $("slMsg");
+      var sr = saleOwners().filter(function (q) { return q.id === sv[0]; })[0], msg = $("slMsg"), isRs = !!sr && st.recipes.indexOf(sr) < 0;
       if (sr && !saleActive(sr, soid)) {
-        var c0 = calc(sr), y0 = yieldOf(sr), sl = n($("sl_price").value), tm = $("sl_time"), st0 = tm && tm.dataset.t ? (parseClock(tm.value) || Date.now()) : Date.now();
-        var unit0 = soid ? recUnitCost(sr.id, soid) : (y0 > 0 ? c0.per / y0 : null);
-        if (!(y0 > 0) || unit0 === null) { msg.textContent = "このレシピに完成数が入っていません。レシピ画面で入れてください。"; }
+        var c0 = isRs ? null : calc(sr), y0 = isRs ? 1 : yieldOf(sr), sl = n($("sl_price").value), tm = $("sl_time"), st0 = tm && tm.dataset.t ? (parseClock(tm.value) || Date.now()) : Date.now();
+        var unit0 = isRs ? (sr.cost === "" || sr.cost === undefined ? null : n(sr.cost)) : soid ? recUnitCost(sr.id, soid) : (y0 > 0 ? c0.per / y0 : null);
+        if (isRs && unit0 === null) { msg.textContent = "仕入れ値が入っていません。下の「仕入れ品」で入れてください。"; }
+        else if (!(y0 > 0) || unit0 === null) { msg.textContent = "このレシピに完成数が入っていません。レシピ画面で入れてください。"; }
         else if (!(sl > 0)) { msg.textContent = "売値を入れてください。"; }
         else {
           var fp = (sr.fee === "" || sr.fee === undefined) ? n(st.shop.tax) : n(sr.fee);
@@ -1440,6 +1484,19 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
           save(); renderMain();
         }
       }
+    }
+    else if (act === "resaleAdd") {
+      var rn = String(($("rs_name") || {}).value || "").trim(), rc = String(($("rs_cost") || {}).value || "").trim(), rm = $("rsMsg");
+      if (!rn) { if (rm) rm.textContent = "商品名を入れてください。"; }
+      else if (rc === "" || !(n(rc) >= 0)) { if (rm) rm.textContent = "仕入れ値を入れてください。"; }
+      else {
+        (st.resale = st.resale || []).push({ id: uid(), name: rn, cost: n(rc), sell: String(($("rs_sell") || {}).value || "").trim() === "" ? "" : n($("rs_sell").value), sales: [] });
+        save(); renderMain();
+        var rm2 = $("rsMsg"); if (rm2) rm2.textContent = "「" + rn + "」を追加しました。上の「販売を始める」で選べます。";
+      }
+    }
+    else if (act === "resaleDel") {
+      twice(b, "rs" + id, "この仕入れ品を消す", function () { st.resale = (st.resale || []).filter(function (x) { return x.id !== id; }); save(); renderMain(); }, "もう一度タップで、記録も含めて消す");
     }
     else if (act === "saleAdd") {
       var sa = findSale(id);
@@ -1724,6 +1781,7 @@ textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; 
     data.seeds = Array.isArray(data.seeds) ? data.seeds : st.seeds.slice();
     data.shop = data.shop || { name: "", lv: "", tax: 10, ind: 100, out: 100 };
     data.view = "recipe";
+    if (!Array.isArray(data.resale)) data.resale = [];
     data.mats.forEach(function (m) { if (m.cat === undefined) { m.cat = catOf(m.name); m.catAuto = !!m.cat; } });
     data.recipes.forEach(function (r) {
       if (r.kind === undefined) r.kind = "";
